@@ -43,7 +43,7 @@ PopplerNode:: ~PopplerNode() {
 PopplerNode::
 PopplerNode(const ArgList& args)
     : m_pPdfPath("")
-    , m_pPixelFormat(avg::B8G8R8X8)
+    , m_pPixelFormat(avg::R8G8B8A8)
     , m_bNewBmp(false)
 {
     AVG_TRACE(
@@ -60,18 +60,16 @@ PopplerNode(const ArgList& args)
         "PopplerNode constructed with " << m_pPdfPath // TODO replace
     );
 
-    
-    if(this->loadDocument()) {
-    }
-    else {
+    if(!this->loadDocument()) {
       cout << "[fail] could not open document" << endl;
-        // TODO load some placeholder in case of loadfailure
+      // TODO load some placeholder in case of loadfailure
     }
 
 }
 
 void
-PopplerNode::setPath(std::string path) {
+PopplerNode::
+setPath(std::string path) {
     std::cout << "setting path to \"" << path << "\"" << std::endl;
     m_pPdfPath = path;
 }
@@ -116,8 +114,8 @@ loadDocument()
 }
 
 
-void PopplerNode::
-fill_bitmap(PopplerPage *page)
+void PopplerNode
+::fill_bitmap(PopplerPage *page)
 {
   //cout << "--- fill_bitmap()" << endl;
   cairo_surface_t *surface;
@@ -132,11 +130,10 @@ fill_bitmap(PopplerPage *page)
   //cout << "---- created surface" << endl;
   poppler_page_render( page, cairo );
   cairo_set_operator(cairo, CAIRO_OPERATOR_DEST_OVER);
-  cairo_set_source_rgb(cairo, 1., 1., 1.);
+  cairo_set_source_rgba(cairo, 1., 0., 0., 0.);
   cairo_paint(cairo);
   
-  //cout << "---- rendered page" << endl;
-  //cairo_surface_flush(surface);
+  cairo_surface_flush(surface);
   unsigned char* data = cairo_image_surface_get_data(surface);
   int stride          = cairo_image_surface_get_stride(surface);
   m_pBitmap           = avg::BitmapPtr(
@@ -144,11 +141,8 @@ fill_bitmap(PopplerPage *page)
   );
   m_bNewBmp           = true;
   
-  //cout << "---- dumped bitmap" << endl;
-  //clean up afterwards
   cairo_destroy(cairo);
   cairo_surface_destroy(surface);
-  //cout << "---- cleaned up surface" << endl;
 }
 
 void PopplerNode:: open()
@@ -214,6 +208,7 @@ BOOST_PYTHON_MODULE(popplernode) {
     class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
 
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
+    .def( "next", &PopplerNode::getPopplerVersion)
 
     .add_property( "path",
                    &PopplerNode::getPath,
