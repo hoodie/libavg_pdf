@@ -37,33 +37,42 @@ namespace avg {
 class AVG_API PopplerNode : public RasterNode
 {
 public:
-    static void registerType();
-    PopplerNode(const ArgList& args);
-    virtual ~PopplerNode();
-
+      static void registerType();
+                  PopplerNode(const ArgList& args);
+         virtual ~PopplerNode();
+         
+// PopplerNodes Own
     const string  getPath() const;
             void  setPath(std::string path);
     const string  getPopplerVersion() const;
             bool  loadDocument();
-    virtual void  open();
-            void  fill_bitmap(PopplerPage *page);
+            void  open();
+            void  fill_bitmap(PopplerPage *page, double width, double height);
+            void  rerender(int page, double width, double height);
+            void  testFunction();
+            
+// RasterNode overwrites            
     virtual void  renderFX();
     virtual void  render();
     virtual void  preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity);
     virtual void  connect(CanvasPtr pCanvas);
     virtual void  connectDisplay();
         IntPoint  getMediaSize();
-    
+
 
 private:
-        std::string  m_pPdfPath;
-       MCTexturePtr  m_pTex;
-          BitmapPtr  m_pBitmap;
-   avg::PixelFormat  m_pPixelFormat;
-               bool  m_bNewBmp;
-    PopplerDocument *m_document;
-                int  m_pageCount;
+        avg::PixelFormat  m_pPixelFormat;
+            MCTexturePtr  m_pTex;
+             std::string  m_pPdfPath;
+               BitmapPtr  m_pBitmap;
+                    bool  m_bNewBmp;
+         PopplerDocument *m_pDocument;
+                     int  m_iPageCount;
+                     int  m_iCurrentPage;
+std::vector<PopplerPage*>  m_vPages;
+  std::vector<BitmapPtr>  m_vPageBitmaps;
 };
 
 
 }
+

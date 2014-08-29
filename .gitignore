@@ -1,5 +1,6 @@
-*.kdev
+*.kdev4
 *.lo
 *.d
+*.d.*
 *.o
 *.so
