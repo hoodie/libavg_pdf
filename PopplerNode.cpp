@@ -43,7 +43,7 @@ PopplerNode:: ~PopplerNode() {
 
 PopplerNode::
 PopplerNode(const ArgList& args)
-    : m_pPixelFormat(avg::R8G8B8A8)
+    : m_pPixelFormat(avg::B8G8R8A8)
     , m_pPdfPath("")
     , m_bNewBmp(false)
     , m_iPageCount(-1)
@@ -99,6 +99,10 @@ getMediaSize()
   poppler_page_get_size(page, &width, &height);
   return IntPoint(width,height);
 }
+
+const string PopplerNode::getDocumentTitle() const{ return poppler_document_get_title(m_pDocument); }
+const string PopplerNode::getDocumentAuthor() const{ return poppler_document_get_author(m_pDocument); }
+const string PopplerNode::getDocumentSubject() const{ return poppler_document_get_subject(m_pDocument); }
 
 bool
 PopplerNode::
@@ -256,6 +260,9 @@ BOOST_PYTHON_MODULE(popplernode) {
     
     .add_property( "mediaSize",       &PopplerNode::getMediaSize )
     .add_property( "pageCount",       &PopplerNode::getPageCount )
+    .add_property( "title",           &PopplerNode::getDocumentTitle )
+    .add_property( "subject",         &PopplerNode::getDocumentSubject )
+    .add_property( "author",          &PopplerNode::getDocumentAuthor )
     .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
 
     //.add_property( "fillcolor",

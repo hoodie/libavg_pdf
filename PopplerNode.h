@@ -46,6 +46,9 @@ public:
     const string  getPath() const;
     const string  getPopplerVersion() const;
        const int  getPageCount() const;
+    const string  getDocumentTitle() const;
+    const string  getDocumentAuthor() const;
+    const string  getDocumentSubject() const;
             bool  loadDocument();
             void  open();
             void  fill_bitmap(PopplerPage *page, double width, double height);
