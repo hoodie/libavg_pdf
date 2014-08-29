@@ -63,12 +63,31 @@ PopplerNode(const ArgList& args)
 
 void
 PopplerNode::
-setPath(std::string path) {
+setPath(std::string path)
+{
     std::cout << "setting path to \"" << path << "\"" << std::endl;
     m_pPdfPath = path;
 }
 
-const string PopplerNode::getPopplerVersion() const { return poppler_get_version(); }
+
+const string
+PopplerNode::
+getPath() const
+{
+    return m_pPdfPath;
+}
+
+const string
+PopplerNode::
+getPopplerVersion() const
+{
+  return poppler_get_version();
+}
+
+const int PopplerNode::getPageCount() const
+{
+  return m_iPageCount;
+}
 
 IntPoint
 PopplerNode::
@@ -79,12 +98,6 @@ getMediaSize()
   double width, height;
   poppler_page_get_size(page, &width, &height);
   return IntPoint(width,height);
-}
-
-const string
-PopplerNode::
-getPath() const {
-    return m_pPdfPath;
 }
 
 bool
@@ -239,16 +252,11 @@ BOOST_PYTHON_MODULE(popplernode) {
     .def( "test", &PopplerNode::testFunction)
     .add_property( "path",
                    &PopplerNode::getPath,
-                   &PopplerNode::setPath
-                 )
-    // TODO add size with resizing and scaling
-    // TODO add rerender()
-    .add_property( "mediaSize",
-                   &PopplerNode::getMediaSize
-                 )
-    .add_property( "poppler_version",
-                   &PopplerNode::getPopplerVersion
-                 );
+                   &PopplerNode::setPath )
+    
+    .add_property( "mediaSize",       &PopplerNode::getMediaSize )
+    .add_property( "pageCount",       &PopplerNode::getPageCount )
+    .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
 
     //.add_property( "fillcolor",
     //    make_function(&ColorNode::getFillColor, return_value_policy<copy_const_reference>()),

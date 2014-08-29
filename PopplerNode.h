@@ -42,9 +42,10 @@ public:
          virtual ~PopplerNode();
          
 // PopplerNodes Own
-    const string  getPath() const;
             void  setPath(std::string path);
+    const string  getPath() const;
     const string  getPopplerVersion() const;
+       const int  getPageCount() const;
             bool  loadDocument();
             void  open();
             void  fill_bitmap(PopplerPage *page, double width, double height);
