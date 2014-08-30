@@ -34,6 +34,8 @@ using namespace boost::python;
 
 namespace avg {
 
+typedef int page_index_t ;
+
 class AVG_API PopplerNode : public RasterNode
 {
 public:
@@ -49,11 +51,15 @@ public:
     const string  getDocumentTitle() const;
     const string  getDocumentAuthor() const;
     const string  getDocumentSubject() const;
+    const string  getPageText() const;
             bool  loadDocument();
+            void  setCurrentPage(page_index_t);
             void  open();
+            void  setupContext();
             void  fill_bitmap(PopplerPage *page, double width, double height);
-            void  rerender(int page, double width, double height);
+            void  rerender(page_index_t   , double width, double height);
             void  testFunction();
+        IntPoint  getPageSize(page_index_t);
             
 // RasterNode overwrites            
     virtual void  renderFX();
@@ -65,16 +71,18 @@ public:
 
 
 private:
-        avg::PixelFormat  m_pPixelFormat;
-            MCTexturePtr  m_pTex;
-             std::string  m_pPdfPath;
-               BitmapPtr  m_pBitmap;
-                    bool  m_bNewBmp;
-         PopplerDocument *m_pDocument;
-                     int  m_iPageCount;
-                     int  m_iCurrentPage;
-std::vector<PopplerPage*>  m_vPages;
-  std::vector<BitmapPtr>  m_vPageBitmaps;
+          avg::PixelFormat  m_pPixelFormat;
+              MCTexturePtr  m_pTex;
+               std::string  m_pPdfPath;
+                 BitmapPtr  m_pBitmap;
+                  IntPoint  m_pNodeSize;
+                      bool  m_bNewSize;
+                      bool  m_bNewBmp;
+           PopplerDocument *m_pDocument;
+                       int  m_iPageCount;
+              page_index_t  m_iCurrentPage;
+ std::vector<PopplerPage*>  m_vPages;
+    std::vector<BitmapPtr>  m_vPageBitmaps;
 };
 
 

@@ -22,6 +22,7 @@ using namespace avg;
 char popplerNodeName[] = "popplernode";
 
 
+
 void PopplerNode::
 registerType()
 {
@@ -37,14 +38,13 @@ registerType()
     TypeRegistry::get()->registerType(def, allowedParentNodeNames);
 }
 
-PopplerNode:: ~PopplerNode() {
-
-}
+PopplerNode:: ~PopplerNode() { }
 
 PopplerNode::
 PopplerNode(const ArgList& args)
     : m_pPixelFormat(avg::B8G8R8A8)
     , m_pPdfPath("")
+    , m_bNewSize(false)
     , m_bNewBmp(false)
     , m_iPageCount(-1)
     , m_iCurrentPage(-1)
@@ -56,8 +56,10 @@ PopplerNode(const ArgList& args)
   AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO, "PopplerNode constructed with " << m_pPdfPath );
   args.setMembers(this);
   
-  if(!this->loadDocument()) 
+  
+  if(!this->loadDocument()) {
     cout << "[fail] could not open document" << endl; // TODO load some placeholder in case of loadfailure
+  }
     
 }
 
@@ -93,8 +95,15 @@ IntPoint
 PopplerNode::
 getMediaSize()
 {
+  return m_pNodeSize;
+}
+
+IntPoint
+PopplerNode::
+getPageSize(page_index_t page_index)
+{
   // TODO store a currentPage
-  PopplerPage *page = poppler_document_get_page( m_pDocument, 0);
+  PopplerPage *page = m_vPages[page_index];
   double width, height;
   poppler_page_get_size(page, &width, &height);
   return IntPoint(width,height);
@@ -103,30 +112,32 @@ getMediaSize()
 const string PopplerNode::getDocumentTitle() const{ return poppler_document_get_title(m_pDocument); }
 const string PopplerNode::getDocumentAuthor() const{ return poppler_document_get_author(m_pDocument); }
 const string PopplerNode::getDocumentSubject() const{ return poppler_document_get_subject(m_pDocument); }
+const string PopplerNode::getPageText() const{ return poppler_page_get_text(m_vPages[m_iCurrentPage]) ;}
 
 bool
 PopplerNode::
 loadDocument()
 {
-    cout << "--- loading document (" << m_pPdfPath << ")" << endl;
+    //cout << "--- loading document (" << m_pPdfPath << ")" << endl;
     GError *error = NULL;
     m_pDocument = poppler_document_new_from_file(m_pPdfPath.c_str(), NULL, &error);
 
     if(m_pDocument == NULL) {
-        cout << "[fail] Problem loading " << m_pPdfPath << endl;
-        cout << error->message << endl;
+        //cout << "[fail] Problem loading " << m_pPdfPath << endl;
+        //cout << error->message << endl;
         return false;
     }
-    cout << "[ok] loaded document " << poppler_document_get_title(m_pDocument) << endl;
+    //cout << "[ok] loaded document " << poppler_document_get_title(m_pDocument) << endl;
     m_iPageCount = poppler_document_get_n_pages(m_pDocument);
     
-    if(m_iCurrentPage > 0){
-      m_iCurrentPage = 0;
-      //m_vPageBitmaps = std::vector<avg::BitmapPtr>;
+    if(m_iPageCount > 0){
+      m_vPages = std::vector<PopplerPage*> (m_iPageCount);
+      m_vPageBitmaps = std::vector<avg::BitmapPtr>(m_iPageCount);
       
       for(int i = 0; i< m_iPageCount; ++i){
-        m_vPages.at(i) = poppler_document_get_page(m_pDocument,i);
+        m_vPages.at(i) = (poppler_document_get_page(m_pDocument,i));
       }
+      setCurrentPage(0);
       
     }
     else
@@ -136,24 +147,43 @@ loadDocument()
     return true;
 }
 
+void  PopplerNode::setCurrentPage(page_index_t page_index)
+{
+      m_iCurrentPage = page_index;
+      m_pNodeSize = getPageSize(page_index);
+}
 
 void PopplerNode
 ::fill_bitmap(PopplerPage *page, double width = 0, double height= 0)
 {
-  //cout << "--- fill_bitmap()" << endl;
+  std::clog << "--- fill_bitmap()" << endl;
   cairo_surface_t *surface;
   cairo_t *cairo;
-  //double xscale, yscale;
   
   IntPoint size = IntPoint(width, height);
   if (width == 0 or height==0)
-    size = getMediaSize();
+    size = m_pNodeSize;
+  else {
+    m_pNodeSize = size;
+    m_bNewSize  = true;
+    std::clog << "setting new size: " << width << " ," << height << endl;
+  }
+    
+  
+  double xscale, yscale;
+  xscale = size.x / (double)getPageSize(m_iCurrentPage).x;
+  yscale = size.y / (double)getPageSize(m_iCurrentPage).y;
+  
+  std::clog << "pagesize to:  " << getPageSize(m_iCurrentPage).x << " ," << getPageSize(m_iCurrentPage).y << endl;
+  std::clog << "scaling to:  " << xscale << " ," << yscale << endl;
   
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.x, size.y);
   cairo   = cairo_create(surface);
   
-  //cout << "---- created surface" << endl;
+  cairo_scale(cairo, xscale,yscale);
+  
   poppler_page_render( page, cairo );
+  
   cairo_set_operator(cairo, CAIRO_OPERATOR_DEST_OVER);
   cairo_set_source_rgba(cairo, 1., 0., 0., 0.);
   cairo_paint(cairo);
@@ -171,12 +201,18 @@ void PopplerNode
 }
 
 void PopplerNode
-::rerender(int page_index, double width = 0, double height = 0)
+::rerender(page_index_t page_index, double width = 0, double height = 0)
 {
   if(page_index < 0 or page_index >= m_iPageCount)
     return;
-  
+  cout << "rerendering page: " << page_index << endl;
   PopplerPage *page = m_vPages[page_index];
+  //cout << m_vPages[page_index];
+  //cout << page ; 
+  //cout << poppler_page_get_text(page) ; 
+  //cout << endl;
+  
+  cout << "resizing to " << width << ", " << height;
   
   fill_bitmap(page, width, height);
   
@@ -187,13 +223,16 @@ void PopplerNode:: open()
     //cout << "+++ open()" << endl;
     
     setViewport(-32767, -32767, -32767, -32767);
+    setupContext();
     PopplerPage *page = poppler_document_get_page(m_pDocument, 0);
-    IntPoint     size = getMediaSize();
-    bool bMipmap = getMaterial().getUseMipmaps();
-
-    m_pTex    = GLContextManager::get()->createTexture(size, m_pPixelFormat, bMipmap);
-    getSurface()->create(m_pPixelFormat,m_pTex);
     fill_bitmap(page);
+}
+
+void PopplerNode::setupContext(){
+
+    bool bMipmap = getMaterial().getUseMipmaps();
+    m_pTex    = GLContextManager::get()->createTexture(m_pNodeSize, m_pPixelFormat, bMipmap);
+    getSurface()->create(m_pPixelFormat,m_pTex);
     newSurface();
     setupFX();
     //cout << "++++ set bitmap" << endl;
@@ -218,9 +257,14 @@ void PopplerNode:: preRender(const VertexArrayPtr& pVA, bool bIsParentActive, fl
   //cout << "... preRender()" << endl;
   //PopplerPage* page = poppler_document_get_page(m_document, 0);
   if(isVisible()) {
+    if(m_bNewSize) {
+      setupContext();
+      m_bNewSize = false;
+    }
     if(m_bNewBmp) {
       //ScopeTime Timer(); # TODO time poppler rendering
       GLContextManager::get()->scheduleTexUpload(m_pTex, m_pBitmap);
+      cout << "happily rendering" << endl;
       m_bNewBmp = false;
     }
   }
@@ -241,8 +285,10 @@ void PopplerNode:: testFunction(){
   // implements all sorts of test stuff
   cout << "---testfunction--x" << endl;
   
-  cout << AreaNode::getSize().x <<  ", " << AreaNode::getSize().y << endl;
+  //cout << AreaNode::getSize().x <<  ", " << AreaNode::getSize().y << endl;
   rerender(0, AreaNode::getSize().x, AreaNode::getSize().y);
+  cout << m_pNodeSize << endl;
+  
   
   cout << "---testfunction---" << endl << endl;
 }
