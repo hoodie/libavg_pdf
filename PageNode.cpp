@@ -4,6 +4,8 @@
 #include <graphics/GLContextManager.h>
 #include <graphics/BitmapLoader.h>
 #include <graphics/OGLHelper.h>
+#include <wrapper/WrapHelper.h>
+#include <wrapper/raw_constructor.hpp>
 
 #include <string>
 #include <iostream>
@@ -11,19 +13,17 @@
 #include <glib/poppler.h>
 #include <cairo-pdf.h>
 
-#include "PopplerNode.h"
+#include "PageNode.h"
 
 using namespace std;
 using namespace boost::python;
 using namespace avg;
 
-void PopplerNode::
+void PageNode::
 registerType()
 {
     TypeDefinition
-    def = TypeDefinition("popplernode", "pagenode",
-                         ExportedObject::buildObject<PopplerNode>)
-          .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pPdfPath)) ) ;
+    def = TypeDefinition("pagenode", "rasternode", ExportedObject::buildObject<PageNode>) ;
     //.addArg(  Arg<string>("fillcolor",   "0F0F0F",  false,  offsetof(ColorNode,  m_sFillColorName) ));
 
     //const char* allowedParentNodeNames[] = {"avg", 0};
@@ -32,126 +32,55 @@ registerType()
     TypeRegistry::get()->registerType(def, allowedParentNodeNames);
 }
 
-PopplerNode:: PopplerNode() { }
-PopplerNode:: ~PopplerNode() { }
+PageNode::  PageNode() { }
+PageNode:: ~PageNode() { }
 
-PopplerNode::
-PopplerNode(const ArgList& args)
+PageNode::
+PageNode(PopplerPage* page)
     : m_pPixelFormat(avg::B8G8R8A8)
-    , m_pPdfPath("")
     , m_bNewSize(false)
     , m_bNewBmp(false)
-    , m_iPageCount(-1)
-    , m_iCurrentPage(-1)
 {
-  
-  AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO, "PopplerNode c'tor gets Argument path= "  << args.getArgVal<string>("path") );
-  AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO, "PopplerNode constructed with " << m_pPdfPath );
+ m_pPage = page; 
+}
+PageNode::
+PageNode(const ArgList& args)
+    : m_pPixelFormat(avg::B8G8R8A8)
+    , m_bNewSize(false)
+    , m_bNewBmp(false)
+{
+  AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO,
+             "PopplerNode c'tor gets Argument page= "  << args.getArgVal<PopplerPage*>("page") );
+  AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO,
+             "PageNode constructed with " << m_pPage );
   args.setMembers(this);
-  
-  
-  if(!this->loadDocument()) {
-    cout << "[fail] could not open document" << endl; // TODO load some placeholder in case of loadfailure
-  }
-    
-}
-
-void
-PopplerNode::
-setPath(std::string path)
-{
-    std::cout << "setting path to \"" << path << "\"" << std::endl;
-    m_pPdfPath = path;
-}
-
-
-const string
-PopplerNode::
-getPath() const
-{
-    return m_pPdfPath;
 }
 
 const string
-PopplerNode::
+PageNode::
 getPopplerVersion() const
 {
   return poppler_get_version();
 }
 
-const int PopplerNode::getPageCount() const
-{
-  return m_iPageCount;
-}
-
 IntPoint
-PopplerNode::
+PageNode::
 getMediaSize()
 {
   return m_pNodeSize;
 }
 
 IntPoint
-PopplerNode::
-getPageSize(PopplerPage* page)
+PageNode::
+getPageSize(PopplerPage *page)
 {
+  // TODO store a currentPage
   double width, height;
   poppler_page_get_size(page, &width, &height);
   return IntPoint(width,height);
 }
 
-IntPoint
-PopplerNode::
-getPageSize(page_index_t page_index)
-{
-  return getPageSize(m_vPages[page_index]);
-}
-
-const string PopplerNode::getDocumentTitle() const{ return poppler_document_get_title(m_pDocument); }
-const string PopplerNode::getDocumentAuthor() const{ return poppler_document_get_author(m_pDocument); }
-const string PopplerNode::getDocumentSubject() const{ return poppler_document_get_subject(m_pDocument); }
-const string PopplerNode::getPageText() const{ return poppler_page_get_text(m_vPages[m_iCurrentPage]) ;}
-
-bool
-PopplerNode::
-loadDocument()
-{
-    //cout << "--- loading document (" << m_pPdfPath << ")" << endl;
-    GError *error = NULL;
-    m_pDocument = poppler_document_new_from_file(m_pPdfPath.c_str(), NULL, &error);
-
-    if(m_pDocument == NULL) {
-        //cout << "[fail] Problem loading " << m_pPdfPath << endl;
-        //cout << error->message << endl;
-        return false;
-    }
-    //cout << "[ok] loaded document " << poppler_document_get_title(m_pDocument) << endl;
-    m_iPageCount = poppler_document_get_n_pages(m_pDocument);
-    
-    if(m_iPageCount > 0){
-      m_vPages = std::vector<PopplerPage*> (m_iPageCount);
-      m_vPageBitmaps = std::vector<avg::BitmapPtr>(m_iPageCount);
-      
-      for(int i = 0; i< m_iPageCount; ++i){
-        m_vPages.at(i) = (poppler_document_get_page(m_pDocument,i));
-      }
-      setCurrentPage(0);
-      
-    }
-    else
-      cout << "document seems to have 0 pages";
-      return false;
-
-    return true;
-}
-
-void  PopplerNode::setCurrentPage(page_index_t page_index)
-{
-      m_iCurrentPage = page_index;
-      m_pNodeSize = getPageSize(page_index);
-}
-
-void PopplerNode
+void PageNode
 ::fill_bitmap(PopplerPage *page, double width = 0, double height= 0)
 {
   std::clog << "--- fill_bitmap()" << endl;
@@ -171,9 +100,6 @@ void PopplerNode
   double xscale, yscale;
   xscale = size.x / (double)getPageSize(page).x;
   yscale = size.y / (double)getPageSize(page).y;
-  
-  std::clog << "pagesize to:  " << getPageSize(m_iCurrentPage).x << " ," << getPageSize(m_iCurrentPage).y << endl;
-  std::clog << "scaling to:  " << xscale << " ," << yscale << endl;
   
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.x, size.y);
   cairo   = cairo_create(surface);
@@ -198,35 +124,23 @@ void PopplerNode
   cairo_surface_destroy(surface);
 }
 
-void PopplerNode
-::rerender(page_index_t page_index, double width = 0, double height = 0)
+void PageNode
+::rerender(PopplerPage *page, double width = 0, double height = 0)
 {
-  if(page_index < 0 or page_index >= m_iPageCount)
-    return;
-  cout << "rerendering page: " << page_index << endl;
-  PopplerPage *page = m_vPages[page_index];
-  //cout << m_vPages[page_index];
-  //cout << page ; 
-  //cout << poppler_page_get_text(page) ; 
-  //cout << endl;
-  
   cout << "resizing to " << width << ", " << height;
-  
   fill_bitmap(page, width, height);
-  
 }
 
-void PopplerNode:: open()
+void PageNode:: open()
 {
     //cout << "+++ open()" << endl;
     
     setViewport(-32767, -32767, -32767, -32767);
     setupContext();
-    PopplerPage *page = poppler_document_get_page(m_pDocument, 0);
-    fill_bitmap(page);
+    fill_bitmap(m_pPage);
 }
 
-void PopplerNode::setupContext(){
+void PageNode::setupContext(){
 
     bool bMipmap = getMaterial().getUseMipmaps();
     m_pTex    = GLContextManager::get()->createTexture(m_pNodeSize, m_pPixelFormat, bMipmap);
@@ -236,20 +150,20 @@ void PopplerNode::setupContext(){
     //cout << "++++ set bitmap" << endl;
 }
 
-void PopplerNode:: connect(CanvasPtr pCanvas)
+void PageNode:: connect(CanvasPtr pCanvas)
 {
   //cout << "... connect()" << endl;
   RasterNode::connect(pCanvas);
 }
 
-void PopplerNode::connectDisplay()
+void PageNode::connectDisplay()
 {
   //cout << "... connectDisplay()" << endl;
   RasterNode::connectDisplay();
   open();
 }
 
-void PopplerNode:: preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity)
+void PageNode:: preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity)
 {
   Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
   //cout << "... preRender()" << endl;
@@ -269,17 +183,17 @@ void PopplerNode:: preRender(const VertexArrayPtr& pVA, bool bIsParentActive, fl
   calcVertexArray(pVA);
 }
 
-void PopplerNode:: renderFX() {
+void PageNode:: renderFX() {
     RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
 }
 
-void PopplerNode:: render() {
+void PageNode:: render() {
   //cout << "... render()" << endl;
   //ScopeTimer Timer(CameraProfilingZone);
   blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
 }
 
-void PopplerNode:: testFunction(){
+void PageNode:: testFunction(){
   // implements all sorts of test stuff
   cout << "---testfunction--x" << endl;
   

@@ -4,3 +4,4 @@
 *.d.*
 *.o
 *.so
+.directory

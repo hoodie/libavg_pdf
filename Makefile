@@ -1,7 +1,7 @@
 PLUGIN_NAME = popplerplugin
-PLUGIN_SOURCES = \
-	Plugin.cpp PopplerNode.cpp #PageNode.cpp
+PLUGIN_SOURCES = Plugin.cpp PopplerNode.cpp PageNode.cpp
 
+# TODO remove absolute AVG_PATH
 AVG_PATH=/home/hendrik/code/hub
 
 ADDITIONAL_PKGCONFIG =

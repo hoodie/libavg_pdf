@@ -28,7 +28,6 @@
 
 #include <graphics/MCTexture.h>
 
-#include "PageNode.h"
 
 using namespace std;
 using namespace boost::python;
@@ -37,29 +36,23 @@ namespace avg {
 
 typedef int page_index_t ;
 
-class AVG_API PopplerNode : public PageNode
+class AVG_API PageNode : public RasterNode
 {
 public:
       static void registerType();
-                  PopplerNode();
-                  PopplerNode(const ArgList& args);
-         virtual ~PopplerNode();
+                  PageNode();
+                  PageNode(PopplerPage* page);
+                  PageNode(const ArgList& args);
+         virtual ~PageNode();
          
-// PopplerNodes Own
-            void  setPath(std::string path);
-    const string  getPath() const;
+// PageNodes Own
     const string  getPopplerVersion() const;
        const int  getPageCount() const;
-    const string  getDocumentTitle() const;
-    const string  getDocumentAuthor() const;
-    const string  getDocumentSubject() const;
-    const string  getPageText() const;
-            bool  loadDocument();
-            void  setCurrentPage(page_index_t);
+    const string  getText() const;
             void  open();
             void  setupContext();
             void  fill_bitmap(PopplerPage *page, double width, double height);
-            void  rerender(page_index_t   , double width, double height);
+            void  rerender(PopplerPage* page, double width, double height);
             void  testFunction();
         IntPoint  getPageSize(page_index_t);
         IntPoint  getPageSize(PopplerPage* page);
@@ -75,17 +68,13 @@ public:
 
 private:
           avg::PixelFormat  m_pPixelFormat;
+               PopplerPage *m_pPage;
               MCTexturePtr  m_pTex;
-               std::string  m_pPdfPath;
                  BitmapPtr  m_pBitmap;
                   IntPoint  m_pNodeSize;
                       bool  m_bNewSize;
                       bool  m_bNewBmp;
-           PopplerDocument *m_pDocument;
                        int  m_iPageCount;
-              page_index_t  m_iCurrentPage;
- std::vector<PopplerPage*>  m_vPages;
-    std::vector<BitmapPtr>  m_vPageBitmaps;
 };
 
 
