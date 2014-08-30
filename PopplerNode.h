@@ -60,6 +60,7 @@ public:
             void  rerender(page_index_t   , double width, double height);
             void  testFunction();
         IntPoint  getPageSize(page_index_t);
+        IntPoint  getPageSize(PopplerPage* page);
             
 // RasterNode overwrites            
     virtual void  renderFX();

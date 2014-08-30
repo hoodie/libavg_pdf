@@ -1,6 +1,6 @@
-PLUGIN_NAME = popplernode
+PLUGIN_NAME = popplerplugin
 PLUGIN_SOURCES = \
-	PopplerNode.cpp
+	Plugin.cpp PopplerNode.cpp #PageNode.cpp
 
 AVG_PATH=/home/hendrik/code/hub
 
@@ -27,7 +27,8 @@ CONFIG += -DAVG_PLUGIN
 CONFIG += $(shell pkg-config poppler poppler-glib --cflags)
 LIBS   += $(shell pkg-config poppler poppler-glib --libs)
 
-CXXOPT = -Wall -Wno-invalid-offsetof -O3 -fPIC -DPOPPLERNODE
+CXXOPT = -Wall -Wno-invalid-offsetof -O3 -fPIC -DPOPPLERPLUGIN \
+				 -fdiagnostics-color=auto
 
 ifneq (,$(findstring Linux,$(shell uname)))
 	AVG_LIB_PATH = $(shell python -c "import os;import libavg;print os.path.dirname(libavg.__file__)" 2>/dev/null)

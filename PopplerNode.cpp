@@ -4,8 +4,6 @@
 #include <graphics/GLContextManager.h>
 #include <graphics/BitmapLoader.h>
 #include <graphics/OGLHelper.h>
-#include <wrapper/WrapHelper.h>
-#include <wrapper/raw_constructor.hpp>
 
 #include <string>
 #include <iostream>
@@ -18,10 +16,6 @@
 using namespace std;
 using namespace boost::python;
 using namespace avg;
-
-char popplerNodeName[] = "popplernode";
-
-
 
 void PopplerNode::
 registerType()
@@ -100,13 +94,18 @@ getMediaSize()
 
 IntPoint
 PopplerNode::
-getPageSize(page_index_t page_index)
+getPageSize(PopplerPage* page)
 {
-  // TODO store a currentPage
-  PopplerPage *page = m_vPages[page_index];
   double width, height;
   poppler_page_get_size(page, &width, &height);
   return IntPoint(width,height);
+}
+
+IntPoint
+PopplerNode::
+getPageSize(page_index_t page_index)
+{
+  return getPageSize(m_vPages[page_index]);
 }
 
 const string PopplerNode::getDocumentTitle() const{ return poppler_document_get_title(m_pDocument); }
@@ -171,8 +170,8 @@ void PopplerNode
     
   
   double xscale, yscale;
-  xscale = size.x / (double)getPageSize(m_iCurrentPage).x;
-  yscale = size.y / (double)getPageSize(m_iCurrentPage).y;
+  xscale = size.x / (double)getPageSize(page).x;
+  yscale = size.y / (double)getPageSize(page).y;
   
   std::clog << "pagesize to:  " << getPageSize(m_iCurrentPage).x << " ," << getPageSize(m_iCurrentPage).y << endl;
   std::clog << "scaling to:  " << xscale << " ," << yscale << endl;
@@ -292,36 +291,3 @@ void PopplerNode:: testFunction(){
   
   cout << "---testfunction---" << endl << endl;
 }
-
-
-
-BOOST_PYTHON_MODULE(popplernode) {
-    class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
-    .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
-    .def( "next", &PopplerNode::getPopplerVersion)
-    .def( "test", &PopplerNode::testFunction)
-    .add_property( "path",
-                   &PopplerNode::getPath,
-                   &PopplerNode::setPath )
-    
-    .add_property( "mediaSize",       &PopplerNode::getMediaSize )
-    .add_property( "pageCount",       &PopplerNode::getPageCount )
-    .add_property( "title",           &PopplerNode::getDocumentTitle )
-    .add_property( "subject",         &PopplerNode::getDocumentSubject )
-    .add_property( "author",          &PopplerNode::getDocumentAuthor )
-    .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
-
-    //.add_property( "fillcolor",
-    //    make_function(&ColorNode::getFillColor, return_value_policy<copy_const_reference>()),
-    //    &ColorNode::setFillColor);
-}
-
-AVG_PLUGIN_API void registerPlugin() {
-    initpopplernode();
-    object mainModule(handle<>(borrowed(PyImport_AddModule("__builtin__"))));
-    object popplerModule(handle<>(PyImport_ImportModule("popplernode")));
-    mainModule.attr("popplerplugin") = popplerModule;
-
-    avg::PopplerNode::registerType();
-}
-

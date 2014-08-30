@@ -1,0 +1,39 @@
+#include <base/Exception.h>
+#include <wrapper/WrapHelper.h>
+#include <wrapper/raw_constructor.hpp>
+#include <glib/poppler.h>
+#include "PopplerNode.h"
+using namespace avg;
+
+char popplerNodeName[] = "popplernode";
+
+BOOST_PYTHON_MODULE(popplerplugin) {
+    class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
+    .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
+    .def( "next", &PopplerNode::getPopplerVersion)
+    .def( "test", &PopplerNode::testFunction)
+    .add_property( "path",
+                   &PopplerNode::getPath,
+                   &PopplerNode::setPath )
+    
+    .add_property( "mediaSize",       &PopplerNode::getMediaSize )
+    .add_property( "pageCount",       &PopplerNode::getPageCount )
+    .add_property( "title",           &PopplerNode::getDocumentTitle )
+    .add_property( "subject",         &PopplerNode::getDocumentSubject )
+    .add_property( "author",          &PopplerNode::getDocumentAuthor )
+    .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
+
+    //.add_property( "fillcolor",
+    //    make_function(&ColorNode::getFillColor, return_value_policy<copy_const_reference>()),
+    //    &ColorNode::setFillColor);
+}
+
+
+AVG_PLUGIN_API void registerPlugin() {
+    initpopplerplugin();
+    object mainModule(handle<>(borrowed(PyImport_AddModule("__builtin__"))));
+    object popplerModule(handle<>(PyImport_ImportModule("popplerplugin")));
+    mainModule.attr("popplerplugin") = popplerModule;
+
+    avg::PopplerNode::registerType();
+}

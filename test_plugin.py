@@ -5,7 +5,7 @@ from   libavg import app
 q = quit
 
 libavg.player.pluginPath = "."
-libavg.player.loadPlugin("popplernode")
+libavg.player.loadPlugin("popplerplugin")
 libavg.PopplerNode = popplerplugin.PopplerNode
 PopplerNode = popplerplugin.PopplerNode
 
