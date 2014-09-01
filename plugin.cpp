@@ -1,7 +1,7 @@
+#include <glib/poppler.h>
 #include <base/Exception.h>
 #include <wrapper/WrapHelper.h>
 #include <wrapper/raw_constructor.hpp>
-#include <glib/poppler.h>
 #include "PopplerNode.h"
 
 using namespace avg;
@@ -10,7 +10,6 @@ using namespace boost::python;
 char popplerNodeName[] = "popplernode";
 char pageNodeName[]    = "pagenode";
 
-    
 BOOST_PYTHON_MODULE(popplerplugin) {
   
     class_<PopplerRectangle>("PopplerRectangle")
@@ -20,8 +19,13 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     class_<PageNode, bases<RasterNode>, boost::noncopyable>("PageNode", no_init)
     .def( "__init__", raw_constructor(createNode<pageNodeName>) )
     .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
-
-
+    
+    //class_<PopplerAnnot>("PopplerAnnot");
+    class_<PopplerAnnotMapping>("PopplerAnnotMapping")
+    .add_property("area",  &PopplerAnnotMapping::area)  
+    //.add_property("annot", &PopplerAnnotMapping::annot)  
+    ;
+    
     class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
     .def( "next",        &PopplerNode::getPopplerVersion)
@@ -29,7 +33,7 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "layout",      &PopplerNode::getPageTextLayout)
     .def( "resize",      &PopplerNode::resize)
     .def( "rerender",    &PopplerNode::rerender)
-  //.def( "annotations", &PopplerNode::getPageAnnotations, return_value_policy<copy_const_reference>())
+    .def( "annotations", &PopplerNode::getPageAnnotations)
     
     .add_property( "path",
                    &PopplerNode::getPath,

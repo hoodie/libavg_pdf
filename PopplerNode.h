@@ -54,7 +54,7 @@ public:
     const string  getPageText() const;
  //RectVectorPtr  getPageTextLayout(page_index_t) const;
         py::list  getPageTextLayout(page_index_t) const;
-        py::list  getPageAnnotations(PopplerPage*) const;
+        py::list  getPageAnnotations(page_index_t) const;
             bool  loadDocument();
             void  setCurrentPage(page_index_t);
             void  open();

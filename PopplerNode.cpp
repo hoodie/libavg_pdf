@@ -106,9 +106,9 @@ getPageSize(PopplerPage* page)
 
 IntPoint
 PopplerNode::
-getPageSize(page_index_t page_index)
+getPageSize(page_index_t index)
 {
-  return getPageSize(m_vPages[page_index]);
+  return getPageSize(m_vPages[index]);
 }
 
 const string PopplerNode::getDocumentTitle()   const { return poppler_document_get_title(m_pDocument); }
@@ -118,9 +118,9 @@ const string PopplerNode::getPageText()        const { return poppler_page_get_t
 
 py::list
 PopplerNode::
-getPageTextLayout(page_index_t i) const{
+getPageTextLayout(page_index_t index) const{
   
-  PopplerPage* page = m_vPages[i];
+  PopplerPage* page = m_vPages[index];
   
   PopplerRectangle* rectangles; 
   guint n_rectangles; 
@@ -128,21 +128,22 @@ getPageTextLayout(page_index_t i) const{
   
   boost::shared_ptr<PopplerRectangle[]>rects(rectangles);
   
-  py::list list;
+  py::list plist;
   for (guint i =0 ; i< n_rectangles; ++i)
-    list.append<PopplerRectangle>(rects[i]);
+    plist.append<PopplerRectangle>(rects[i]);
   
-  return list;
+  return plist;
 }
 
 py::list
 PopplerNode::
-getPageAnnotations(PopplerPage* page) const{
+getPageAnnotations(page_index_t index) const{
+  PopplerPage* page = m_vPages[index];
   GList* lptr;
   GList* glist = poppler_page_get_annot_mapping(page);
   py::list plist; 
   for (lptr = glist; lptr != NULL; lptr = lptr->next)
-    plist.append( lptr->data);
+    plist.append( (PopplerAnnotMapping*)lptr->data );
   return plist;
 }
 
