@@ -128,18 +128,22 @@ getPageTextLayout(page_index_t i) const{
   
   boost::shared_ptr<PopplerRectangle[]>rects(rectangles);
   
-  //RectVectorPtr vector = RectVectorPtr(new RectVector(n_rectangles));
-  
-  boost::python::list list;
+  py::list list;
   for (guint i =0 ; i< n_rectangles; ++i)
     list.append<PopplerRectangle>(rects[i]);
   
   return list;
 }
 
-GList* PopplerNode::getPageAnnotations(PopplerPage* page) const{
-  GList* list = poppler_page_get_annot_mapping(page);
-  return list;
+py::list
+PopplerNode::
+getPageAnnotations(PopplerPage* page) const{
+  GList* lptr;
+  GList* glist = poppler_page_get_annot_mapping(page);
+  py::list plist; 
+  for (lptr = glist; lptr != NULL; lptr = lptr->next)
+    plist.append( lptr->data);
+  return plist;
 }
 
 bool
@@ -175,7 +179,7 @@ loadDocument()
     return true;
 }
 
-void  PopplerNode::setCurrentPage(page_index_t page_index)
+void PopplerNode::setCurrentPage(page_index_t page_index)
 {
       m_iCurrentPage = page_index;
       m_pNodeSize = getPageSize(page_index);
@@ -229,7 +233,11 @@ void PopplerNode
 }
 
 void PopplerNode
-::rerender(page_index_t page_index, double width = 0, double height = 0)
+::rerender(page_index_t page_index)
+{resize(page_index, 0,0);}
+
+void PopplerNode
+::resize(page_index_t page_index, double width = 0, double height = 0)
 {
   if(page_index < 0 or page_index >= m_iPageCount)
     return;
@@ -314,7 +322,7 @@ void PopplerNode:: testFunction(){
   cout << "---testfunction--x" << endl;
   
   //cout << AreaNode::getSize().x <<  ", " << AreaNode::getSize().y << endl;
-  rerender(0, AreaNode::getSize().x, AreaNode::getSize().y);
+  resize(0, AreaNode::getSize().x, AreaNode::getSize().y);
   cout << m_pNodeSize << endl;
   
   

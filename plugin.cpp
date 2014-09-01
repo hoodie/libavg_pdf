@@ -14,14 +14,11 @@ char pageNodeName[]    = "pagenode";
 BOOST_PYTHON_MODULE(popplerplugin) {
   
     class_<PopplerRectangle>("PopplerRectangle")
-      .add_property("x1", &PopplerRectangle::x1)
-      .add_property("x2", &PopplerRectangle::x2)
-      .add_property("y1", &PopplerRectangle::y1)
-      .add_property("y2", &PopplerRectangle::y2);
+      .add_property("x1", &PopplerRectangle::x1).add_property("x2", &PopplerRectangle::x2)
+      .add_property("y1", &PopplerRectangle::y1).add_property("y2", &PopplerRectangle::y2);
       
     class_<PageNode, bases<RasterNode>, boost::noncopyable>("PageNode", no_init)
     .def( "__init__", raw_constructor(createNode<pageNodeName>) )
-    .def( "test", &PopplerNode::testFunction)
     .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
 
 
@@ -30,6 +27,8 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "next",        &PopplerNode::getPopplerVersion)
     .def( "test",        &PopplerNode::testFunction)
     .def( "layout",      &PopplerNode::getPageTextLayout)
+    .def( "resize",      &PopplerNode::resize)
+    .def( "rerender",    &PopplerNode::rerender)
   //.def( "annotations", &PopplerNode::getPageAnnotations, return_value_policy<copy_const_reference>())
     
     .add_property( "path",

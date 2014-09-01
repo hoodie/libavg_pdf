@@ -53,14 +53,15 @@ public:
     const string  getDocumentSubject() const;
     const string  getPageText() const;
  //RectVectorPtr  getPageTextLayout(page_index_t) const;
-boost::python::list  getPageTextLayout(page_index_t) const;
-           GList* getPageAnnotations(PopplerPage*) const;
+        py::list  getPageTextLayout(page_index_t) const;
+        py::list  getPageAnnotations(PopplerPage*) const;
             bool  loadDocument();
             void  setCurrentPage(page_index_t);
             void  open();
             void  setupContext();
             void  fill_bitmap(PopplerPage*, double width, double height);
-            void  rerender(page_index_t   , double width, double height);
+            void  rerender(page_index_t   );
+            void  resize(page_index_t   , double width, double height);
             void  testFunction();
         IntPoint  getPageSize(page_index_t);
         IntPoint  getPageSize(PopplerPage* page);
