@@ -10,13 +10,17 @@
 #include <vector>
 #include <glib/poppler.h>
 #include <cairo-pdf.h>
+#include <boost/python.hpp>
 
 #include "PopplerNode.h"
 
 using namespace std;
-using namespace boost::python;
 using namespace avg;
 
+namespace py = boost::python;
+
+typedef   int page_index_t ;
+  
 void PopplerNode::
 registerType()
 {
@@ -107,10 +111,36 @@ getPageSize(page_index_t page_index)
   return getPageSize(m_vPages[page_index]);
 }
 
-const string PopplerNode::getDocumentTitle() const{ return poppler_document_get_title(m_pDocument); }
-const string PopplerNode::getDocumentAuthor() const{ return poppler_document_get_author(m_pDocument); }
-const string PopplerNode::getDocumentSubject() const{ return poppler_document_get_subject(m_pDocument); }
-const string PopplerNode::getPageText() const{ return poppler_page_get_text(m_vPages[m_iCurrentPage]) ;}
+const string PopplerNode::getDocumentTitle()   const { return poppler_document_get_title(m_pDocument); }
+const string PopplerNode::getDocumentAuthor()  const { return poppler_document_get_author(m_pDocument); }
+const string PopplerNode::getDocumentSubject() const { return poppler_document_get_subject(m_pDocument); }
+const string PopplerNode::getPageText()        const { return poppler_page_get_text(m_vPages[m_iCurrentPage]) ;}
+
+py::list
+PopplerNode::
+getPageTextLayout(page_index_t i) const{
+  
+  PopplerPage* page = m_vPages[i];
+  
+  PopplerRectangle* rectangles; 
+  guint n_rectangles; 
+  poppler_page_get_text_layout(page, &rectangles, &n_rectangles);
+  
+  boost::shared_ptr<PopplerRectangle[]>rects(rectangles);
+  
+  //RectVectorPtr vector = RectVectorPtr(new RectVector(n_rectangles));
+  
+  boost::python::list list;
+  for (guint i =0 ; i< n_rectangles; ++i)
+    list.append<PopplerRectangle>(rects[i]);
+  
+  return list;
+}
+
+GList* PopplerNode::getPageAnnotations(PopplerPage* page) const{
+  GList* list = poppler_page_get_annot_mapping(page);
+  return list;
+}
 
 bool
 PopplerNode::

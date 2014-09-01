@@ -27,15 +27,13 @@
 #include <player/TypeDefinition.h>
 
 #include <graphics/MCTexture.h>
+#include <boost/python.hpp>
 
 #include "PageNode.h"
 
-using namespace std;
-using namespace boost::python;
+namespace py = boost::python;
 
 namespace avg {
-
-typedef int page_index_t ;
 
 class AVG_API PopplerNode : public PageNode
 {
@@ -54,11 +52,14 @@ public:
     const string  getDocumentAuthor() const;
     const string  getDocumentSubject() const;
     const string  getPageText() const;
+ //RectVectorPtr  getPageTextLayout(page_index_t) const;
+boost::python::list  getPageTextLayout(page_index_t) const;
+           GList* getPageAnnotations(PopplerPage*) const;
             bool  loadDocument();
             void  setCurrentPage(page_index_t);
             void  open();
             void  setupContext();
-            void  fill_bitmap(PopplerPage *page, double width, double height);
+            void  fill_bitmap(PopplerPage*, double width, double height);
             void  rerender(page_index_t   , double width, double height);
             void  testFunction();
         IntPoint  getPageSize(page_index_t);
@@ -81,7 +82,7 @@ private:
                   IntPoint  m_pNodeSize;
                       bool  m_bNewSize;
                       bool  m_bNewBmp;
-           PopplerDocument *m_pDocument;
+           PopplerDocument* m_pDocument;
                        int  m_iPageCount;
               page_index_t  m_iCurrentPage;
  std::vector<PopplerPage*>  m_vPages;
