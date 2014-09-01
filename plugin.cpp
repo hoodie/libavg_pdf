@@ -10,6 +10,9 @@ using namespace boost::python;
 char popplerNodeName[] = "popplernode";
 char pageNodeName[]    = "pagenode";
 
+typedef struct _PopplerPage{};
+typedef struct _PopplerAnnot{};
+
 BOOST_PYTHON_MODULE(popplerplugin) {
   
   class_<PopplerRectangle>("PopplerRectangle")
@@ -20,10 +23,11 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "__init__", raw_constructor(createNode<pageNodeName>) )
     .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
   
-  //class_<PopplerAnnot>("PopplerAnnot");
+  //class_<PopplerAnnot>("PopplerPage");
+  class_<_PopplerAnnot>("PopplerAnnot");
   class_<PopplerAnnotMapping>("PopplerAnnotMapping")
     .add_property("area",  &PopplerAnnotMapping::area)  
-    //.add_property("annot", &PopplerAnnotMapping::annot)  
+    .add_property("annot", &PopplerAnnotMapping::annot)
     ;
   
   class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
