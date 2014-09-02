@@ -26,7 +26,7 @@ PopplerNode::
 registerType()
 {
     TypeDefinition
-    def = TypeDefinition("popplernode", "pagenode",
+    def = TypeDefinition("popplernode", "rasternode",
                          ExportedObject::buildObject<PopplerNode>)
           .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pPdfPath)) ) ;
     //.addArg(  Arg<string>("fillcolor",   "0F0F0F",  false,  offsetof(ColorNode,  m_sFillColorName) ));

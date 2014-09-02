@@ -10,7 +10,6 @@ using namespace avg;
 using namespace boost::python;
 
 char popplerNodeName[] = "popplernode";
-char pageNodeName[]    = "pagenode";
 
 BOOST_PYTHON_MODULE(popplerplugin) {
   
@@ -18,12 +17,6 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .add_property("x1", &PopplerRectangle::x1).add_property("x2", &PopplerRectangle::x2)
     .add_property("y1", &PopplerRectangle::y1).add_property("y2", &PopplerRectangle::y2);
       
-  class_<PageNode, bases<RasterNode>, boost::noncopyable>("PageNode", no_init)
-    .def( "__init__", raw_constructor(createNode<pageNodeName>) )
-    .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
-  
-
-
   class_<_Annotation>("Annotation") // from wrapper.h
     .add_property("area",  &Annotation::area)  
     .add_property("name",  &Annotation::name)  
@@ -66,6 +59,5 @@ AVG_PLUGIN_API void registerPlugin() {
     object popplerModule(handle<>(PyImport_ImportModule("popplerplugin")));
     mainModule.attr("popplerplugin") = popplerModule;
 
-    avg::PageNode::registerType();
     avg::PopplerNode::registerType();
 }

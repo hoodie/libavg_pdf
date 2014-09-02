@@ -30,13 +30,13 @@
 #include <boost/python.hpp>
 #include <glib/poppler.h>
 
-#include "PageNode.h"
-
 namespace py = boost::python;
 
 namespace avg {
+  
+typedef int page_index_t;
 
-class AVG_API PopplerNode : public PageNode
+class AVG_API PopplerNode : public RasterNode
 {
 public:
       static void registerType();
@@ -54,7 +54,6 @@ public:
           const string  getDocumentAuthor() const;
           const string  getDocumentSubject() const;
           const string  getPageText() const;
-      //RectVectorPtr  getPageTextLayout(page_index_t) const;
               py::list  getPageTextLayout(page_index_t) const;
               py::list  getPageAnnotations(page_index_t) const;
                   bool  loadDocument();
