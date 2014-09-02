@@ -49,6 +49,7 @@ public:
     const string  getPath() const;
     const string  getPopplerVersion() const;
        const int  getPageCount() const;
+       const int  getCurrentPage() const;
     const string  getDocumentTitle() const;
     const string  getDocumentAuthor() const;
     const string  getDocumentSubject() const;
@@ -60,10 +61,12 @@ public:
             void  setCurrentPage(page_index_t);
             void  open();
             void  setupContext();
-            void  fill_bitmap(PopplerPage*, double width, double height);
-            void  rerender(page_index_t   );
-            void  resize(page_index_t   , double width, double height);
+            void  fill_bitmap(page_index_t, double width, double height);
+            void  lookup_bitmap(page_index_t);
+            void  resize(page_index_t, double width, double height);
+            void  rerender(page_index_t);
             void  testFunction();
+            
         IntPoint  getPageSize(page_index_t);
         IntPoint  getPageSize(PopplerPage* page);
             
@@ -78,17 +81,17 @@ public:
 
 private:
           avg::PixelFormat  m_pPixelFormat;
+           PopplerDocument* m_pDocument;
               MCTexturePtr  m_pTex;
                std::string  m_pPdfPath;
                  BitmapPtr  m_pBitmap;
                   IntPoint  m_pNodeSize;
                       bool  m_bNewSize;
                       bool  m_bNewBmp;
-           PopplerDocument* m_pDocument;
                        int  m_iPageCount;
               page_index_t  m_iCurrentPage;
- std::vector<PopplerPage*>  m_vPages;
     std::vector<BitmapPtr>  m_vPageBitmaps;
+ std::vector<PopplerPage*>  m_vPages;
 };
 
 

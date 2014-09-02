@@ -89,6 +89,13 @@ getPageCount() const
   return m_iPageCount;
 }
 
+const int
+PopplerNode::
+getCurrentPage() const
+{
+  return m_iCurrentPage;
+}
+
 IntPoint
 PopplerNode::
 getMediaSize()
@@ -213,8 +220,11 @@ setCurrentPage(page_index_t page_index)
 
 void
 PopplerNode::
-fill_bitmap(PopplerPage *page, double width = 0, double height= 0)
+fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
 {
+  
+  PopplerPage* page = m_vPages[page_index];
+  
   std::clog << "--- fill_bitmap()" << endl;
   cairo_surface_t *surface;
   cairo_t *cairo;
@@ -253,6 +263,9 @@ fill_bitmap(PopplerPage *page, double width = 0, double height= 0)
   m_pBitmap           = avg::BitmapPtr(
     new avg::Bitmap(size, m_pPixelFormat, data, stride, true)
   );
+  
+  m_vPageBitmaps.at(page_index) = m_pBitmap;
+  
   m_bNewBmp           = true;
 
   cairo_destroy(cairo);
@@ -263,7 +276,18 @@ void
 PopplerNode::
 rerender(page_index_t page_index)
 {
-  resize(page_index, 0,0);
+  if(page_index < 0 or page_index >= m_iPageCount){
+    cerr << "page_index out of bound" << endl;
+    return ;
+  }
+  m_iCurrentPage = page_index;
+  if(m_vPageBitmaps.at(page_index) != NULL){
+    m_pBitmap = m_vPageBitmaps.at(page_index);
+    m_bNewBmp = true;
+  }
+  
+  else
+    resize(page_index, 0,0);
 }
 
 void
@@ -272,17 +296,17 @@ resize(page_index_t page_index, double width = 0, double height = 0)
 {
   if(page_index < 0 or page_index >= m_iPageCount)
     return;
-  cout << "rerendering page: " << page_index << endl;
-  PopplerPage *page = m_vPages[page_index];
-  //cout << m_vPages[page_index];
-  //cout << page ; 
-  //cout << poppler_page_get_text(page) ; 
-  //cout << endl;
+  clog << "rerendering page: " << page_index << endl;
   
-  cout << "resizing to " << width << ", " << height;
+  if (width != 0 and height!=0)
+  {
+    clog << "resetting bitmap cache ";
+    m_vPageBitmaps.clear();
+    m_bNewSize = true;
+  }
 
-  fill_bitmap(page, width, height);
-
+  clog << "resizing to " << width << ", " << height;
+  fill_bitmap(page_index, width, height);
 }
 
 void
@@ -291,8 +315,6 @@ open()
 {
   setViewport(-32767, -32767, -32767, -32767);
   setupContext();
-  PopplerPage *page = poppler_document_get_page(m_pDocument, 0);
-  fill_bitmap(page);
 }
 
 void
@@ -333,7 +355,6 @@ preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffective
     if(m_bNewBmp) {
       //ScopeTime Timer(); # TODO time poppler rendering
       GLContextManager::get()->scheduleTexUpload(m_pTex, m_pBitmap);
-      cout << "happily rendering" << endl;
       m_bNewBmp = false;
     }
   }
