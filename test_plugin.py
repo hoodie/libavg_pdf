@@ -28,7 +28,8 @@ class MyMainDiv(app.MainDiv):
         self.backNode = libavg.RectNode( fillcolor = "FFFFFF", size = libavg.Point2D(200,200), fillopacity = 1) 
         self.appendChild( self.backNode )
         self.appendChild( self.popNode )
-        popNode.rerender(0)
+        popNode.adaptSize()
+        #popNode.rerender(0)
         
         #self.popNode.size *= .5
         self.backNode.size = self.popNode.size
