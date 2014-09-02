@@ -264,6 +264,7 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
     new avg::Bitmap(size, m_pPixelFormat, data, stride, true)
   );
   
+  cout << "getting till here" << endl;
   m_vPageBitmaps.at(page_index) = m_pBitmap;
   
   m_bNewBmp           = true;
@@ -302,11 +303,17 @@ resize(page_index_t page_index, double width = 0, double height = 0)
   {
     clog << "resetting bitmap cache ";
     m_vPageBitmaps.clear();
+    m_vPageBitmaps = std::vector<avg::BitmapPtr>(m_iPageCount);
     m_bNewSize = true;
   }
-
   clog << "resizing to " << width << ", " << height;
   fill_bitmap(page_index, width, height);
+}
+
+void
+PopplerNode::
+adaptSize(){
+  resize(getCurrentPage(), AreaNode::getSize().x, AreaNode::getSize().y);
 }
 
 void
@@ -371,15 +378,4 @@ void PopplerNode:: render() {
   //cout << "... render()" << endl;
   //ScopeTimer Timer(CameraProfilingZone);
   blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
-}
-
-void
-PopplerNode::
-testFunction(){
-  cout << "---testfunction--x" << endl;
-  
-  resize(0, AreaNode::getSize().x, AreaNode::getSize().y);
-  cout << m_pNodeSize << endl;
-  
-  cout << "---testfunction---" << endl << endl;
 }

@@ -3,6 +3,7 @@
 #include <wrapper/WrapHelper.h>
 #include <wrapper/raw_constructor.hpp>
 #include "PopplerNode.h"
+
 #include "wrapper.h"
 
 using namespace avg;
@@ -39,7 +40,7 @@ BOOST_PYTHON_MODULE(popplerplugin) {
   class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
     .def( "next",           &PopplerNode::getPopplerVersion)
-    .def( "test",           &PopplerNode::testFunction)
+    .def( "adaptSize",      &PopplerNode::adaptSize)
     .def( "getPageLayout",  &PopplerNode::getPageTextLayout)
     .def( "resize",         &PopplerNode::resize)
     .def( "rerender",       &PopplerNode::rerender)
@@ -56,9 +57,6 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .add_property( "author",          &PopplerNode::getDocumentAuthor )
     .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
     
-    //.add_property( "fillcolor",
-    //    make_function(&ColorNode::getFillColor, return_value_policy<copy_const_reference>()),
-    //    &ColorNode::setFillColor);
 }
 
 

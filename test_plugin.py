@@ -42,7 +42,9 @@ class MyMainDiv(app.MainDiv):
         app.keyboardmanager.bindKeyDown("t", self.handle_test, help, modifiers=libavg.KEYMOD_NONE)
         
     def handle_test(self):
-      self.popNode.test()
+      page = self.popNode.current_page
+      self.popNode.rerender(page)
+      self.popNode.adaptSize()
       
     def handle_incr(self):
       self.popNode.size *= 1.1
@@ -83,7 +85,5 @@ if "start" in sys.argv:
   
 hello = "hello world"
 
-
 print
 print "q = quit"
-a = popNode.annotations(0)[0]

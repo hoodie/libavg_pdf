@@ -45,38 +45,38 @@ public:
          virtual ~PopplerNode();
          
 // PopplerNodes Own
-            void  setPath(std::string path);
-    const string  getPath() const;
-    const string  getPopplerVersion() const;
-       const int  getPageCount() const;
-       const int  getCurrentPage() const;
-    const string  getDocumentTitle() const;
-    const string  getDocumentAuthor() const;
-    const string  getDocumentSubject() const;
-    const string  getPageText() const;
- //RectVectorPtr  getPageTextLayout(page_index_t) const;
-        py::list  getPageTextLayout(page_index_t) const;
-        py::list  getPageAnnotations(page_index_t) const;
-            bool  loadDocument();
-            void  setCurrentPage(page_index_t);
-            void  open();
-            void  setupContext();
-            void  fill_bitmap(page_index_t, double width, double height);
-            void  lookup_bitmap(page_index_t);
-            void  resize(page_index_t, double width, double height);
-            void  rerender(page_index_t);
-            void  testFunction();
-            
-        IntPoint  getPageSize(page_index_t);
-        IntPoint  getPageSize(PopplerPage* page);
-            
-// RasterNode overwrites            
-    virtual void  renderFX();
-    virtual void  render();
-    virtual void  preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity);
-    virtual void  connect(CanvasPtr pCanvas);
-    virtual void  connectDisplay();
-        IntPoint  getMediaSize();
+                  void  setPath(std::string path);
+          const string  getPath() const;
+          const string  getPopplerVersion() const;
+             const int  getPageCount() const;
+    const page_index_t  getCurrentPage() const;
+          const string  getDocumentTitle() const;
+          const string  getDocumentAuthor() const;
+          const string  getDocumentSubject() const;
+          const string  getPageText() const;
+      //RectVectorPtr  getPageTextLayout(page_index_t) const;
+              py::list  getPageTextLayout(page_index_t) const;
+              py::list  getPageAnnotations(page_index_t) const;
+                  bool  loadDocument();
+                  void  setCurrentPage(page_index_t);
+                  void  open();
+                  void  setupContext();
+                  void  fill_bitmap(page_index_t, double width, double height);
+                  void  lookup_bitmap(page_index_t);
+                  void  resize(page_index_t, double width, double height);
+                  void  adaptSize();
+                  void  rerender(page_index_t);
+                  
+              IntPoint  getPageSize(page_index_t);
+              IntPoint  getPageSize(PopplerPage* page);
+                  
+      // RasterNode overwrites            
+          virtual void  renderFX();
+          virtual void  render();
+          virtual void  preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity);
+          virtual void  connect(CanvasPtr pCanvas);
+          virtual void  connectDisplay();
+              IntPoint  getMediaSize();
 
 
 private:
