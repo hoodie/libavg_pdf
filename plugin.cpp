@@ -21,29 +21,29 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "__init__", raw_constructor(createNode<pageNodeName>) )
     .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
   
-    
-  class_<_Color>("Color")
-    .add_property("red",    &Color::red  )
-    .add_property("green",  &Color::green)
-    .add_property("blue",   &Color::blue );
-    
-  class_<_Annotation>("Annotation")
+
+
+  class_<_Annotation>("Annotation") // from wrapper.h
     .add_property("area",  &Annotation::area)  
     .add_property("name",  &Annotation::name)  
-    //.add_property("annot", &Annotation::annot)
     .add_property("modified", &Annotation::modified)
     .add_property("color", &Annotation::color)
     .add_property("contents", &Annotation::contents);
   
+  class_<_Color>("Color") // from wrapper.h
+    .add_property("red",    &Color::red  )
+    .add_property("green",  &Color::green)
+    .add_property("blue",   &Color::blue );
     
+
   class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
-    .def( "next",        &PopplerNode::getPopplerVersion)
-    .def( "test",        &PopplerNode::testFunction)
-    .def( "layout",      &PopplerNode::getPageTextLayout)
-    .def( "resize",      &PopplerNode::resize)
-    .def( "rerender",    &PopplerNode::rerender)
-    .def( "annotations", &PopplerNode::getPageAnnotations)
+    .def( "next",           &PopplerNode::getPopplerVersion)
+    .def( "test",           &PopplerNode::testFunction)
+    .def( "getPageLayout",  &PopplerNode::getPageTextLayout)
+    .def( "resize",         &PopplerNode::resize)
+    .def( "rerender",       &PopplerNode::rerender)
+    .def( "getAnnotations", &PopplerNode::getPageAnnotations)
     
     .add_property( "path",
                   &PopplerNode::getPath,
