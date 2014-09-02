@@ -28,6 +28,7 @@
 
 #include <graphics/MCTexture.h>
 #include <boost/python.hpp>
+#include <glib/poppler.h>
 
 #include "PageNode.h"
 

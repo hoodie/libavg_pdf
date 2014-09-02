@@ -84,3 +84,4 @@ hello = "hello world"
 
 print
 print "q = quit"
+a = popNode.annotations(0)[0]

@@ -14,13 +14,13 @@
 
 #include "PopplerNode.h"
 
+#include "wrapper.h"
+
 using namespace std;
 using namespace avg;
 
 namespace py = boost::python;
 
-typedef   int page_index_t ;
-  
 void
 PopplerNode::
 registerType()
@@ -119,7 +119,8 @@ const string PopplerNode::getPageText()        const { return poppler_page_get_t
 
 py::list
 PopplerNode::
-getPageTextLayout(page_index_t index) const{
+getPageTextLayout(page_index_t index) const
+{
   
   PopplerPage* page = m_vPages[index];
   
@@ -138,13 +139,34 @@ getPageTextLayout(page_index_t index) const{
 
 py::list
 PopplerNode::
-getPageAnnotations(page_index_t index) const{
+getPageAnnotations(page_index_t index) const
+{
+  
   PopplerPage* page = m_vPages[index];
   GList* lptr;
   GList* glist = poppler_page_get_annot_mapping(page);
   py::list plist; 
   for (lptr = glist; lptr != NULL; lptr = lptr->next)
-    plist.append( (PopplerAnnotMapping*)lptr->data );
+  {
+    
+    Annotation a;
+    
+    PopplerAnnot* pannot = (PopplerAnnot*)(((PopplerAnnotMapping*)lptr->data)->annot);
+    PopplerColor* pcolor = poppler_annot_get_color(pannot);
+    
+    //a.name =  annot->getName()->getCString();
+    a.name     = poppler_annot_get_name(pannot);
+    a.contents = poppler_annot_get_contents(pannot);
+    a.modified = poppler_annot_get_modified(pannot);
+    a.area     = ((PopplerAnnotMapping*)lptr->data)->area;
+    a.color.red   = pcolor->red;
+    a.color.green = pcolor->green;
+    a.color.blue  = pcolor->blue;
+    
+    plist.append( a );
+    
+  }
+    
   return plist;
 }
 
@@ -190,8 +212,8 @@ setCurrentPage(page_index_t page_index)
 }
 
 void
-PopplerNode
-::fill_bitmap(PopplerPage *page, double width = 0, double height= 0)
+PopplerNode::
+fill_bitmap(PopplerPage *page, double width = 0, double height= 0)
 {
   std::clog << "--- fill_bitmap()" << endl;
   cairo_surface_t *surface;

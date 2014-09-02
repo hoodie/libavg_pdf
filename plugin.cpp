@@ -3,15 +3,13 @@
 #include <wrapper/WrapHelper.h>
 #include <wrapper/raw_constructor.hpp>
 #include "PopplerNode.h"
+#include "wrapper.h"
 
 using namespace avg;
 using namespace boost::python;
 
 char popplerNodeName[] = "popplernode";
 char pageNodeName[]    = "pagenode";
-
-typedef struct _PopplerPage{};
-typedef struct _PopplerAnnot{};
 
 BOOST_PYTHON_MODULE(popplerplugin) {
   
@@ -23,13 +21,21 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "__init__", raw_constructor(createNode<pageNodeName>) )
     .add_property( "poppler_version", &PopplerNode::getPopplerVersion );
   
-  //class_<PopplerAnnot>("PopplerPage");
-  class_<_PopplerAnnot>("PopplerAnnot");
-  class_<PopplerAnnotMapping>("PopplerAnnotMapping")
-    .add_property("area",  &PopplerAnnotMapping::area)  
-    .add_property("annot", &PopplerAnnotMapping::annot)
-    ;
+    
+  class_<_Color>("Color")
+    .add_property("red",    &Color::red  )
+    .add_property("green",  &Color::green)
+    .add_property("blue",   &Color::blue );
+    
+  class_<_Annotation>("Annotation")
+    .add_property("area",  &Annotation::area)  
+    .add_property("name",  &Annotation::name)  
+    //.add_property("annot", &Annotation::annot)
+    .add_property("modified", &Annotation::modified)
+    .add_property("color", &Annotation::color)
+    .add_property("contents", &Annotation::contents);
   
+    
   class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
     .def( "next",        &PopplerNode::getPopplerVersion)
