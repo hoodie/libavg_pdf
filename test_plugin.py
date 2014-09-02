@@ -32,8 +32,9 @@ class MyMainDiv(app.MainDiv):
         popNode.rerender()
         #popNode.setPage(0)
         
-        #self.popNode.size *= .5
         self.backNode.size = self.popNode.size
+        print self.backNode.size
+
 
         app.keyboardmanager.bindKeyDown("v", self.handle_vers, help, modifiers=libavg.KEYMOD_NONE)
         app.keyboardmanager.bindKeyDown("j", self.handle_next, help, modifiers=libavg.KEYMOD_NONE)
@@ -44,7 +45,6 @@ class MyMainDiv(app.MainDiv):
         app.keyboardmanager.bindKeyDown("t", self.handle_test, help, modifiers=libavg.KEYMOD_NONE)
         
     def handle_test(self):
-      page = self.popNode.current_page
       self.popNode.rerender()
       
     def handle_incr(self):
@@ -62,11 +62,11 @@ class MyMainDiv(app.MainDiv):
       print self.popNode.size
       
     def handle_prev(self):
-      page = self.popNode.current_page
+      page = self.popNode.currentPage
       self.popNode.setPage(page-1)
 
     def handle_next(self):
-      page = self.popNode.current_page
+      page = self.popNode.currentPage
       self.popNode.setPage(page+1)
 
     def onExit(self):

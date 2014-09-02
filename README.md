@@ -30,7 +30,7 @@ popplerNode.rerender() # triggers first render
 
 ## switching pages
 
-cp = popplerNode.current_page # contains the current page
+cp = popplerNode.currentPage # contains the current page
 
 popplerNode.setPage(cp+1) # renders next page
 popplerNode.setPage(cp-1) # renders previous page

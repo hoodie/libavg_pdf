@@ -44,7 +44,7 @@ BOOST_PYTHON_MODULE(popplerplugin) {
                   &PopplerNode::setPath )
     .add_property( "mediaSize",       &PopplerNode::getMediaSize )
     .add_property( "pageCount",       &PopplerNode::getPageCount )
-    .add_property( "current_page",    &PopplerNode::getCurrentPage)
+    .add_property( "currentPage",     &PopplerNode::getCurrentPage)
     .add_property( "title",           &PopplerNode::getDocumentTitle )
     .add_property( "subject",         &PopplerNode::getDocumentSubject )
     .add_property( "author",          &PopplerNode::getDocumentAuthor )
