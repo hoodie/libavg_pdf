@@ -33,10 +33,10 @@ BOOST_PYTHON_MODULE(popplerplugin) {
   class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
     .def( "next",           &PopplerNode::getPopplerVersion)
-    .def( "adaptSize",      &PopplerNode::adaptSize)
+    .def( "rerender",       &PopplerNode::rerender)
     .def( "getPageLayout",  &PopplerNode::getPageTextLayout)
     .def( "resize",         &PopplerNode::resize)
-    .def( "rerender",       &PopplerNode::rerender)
+    .def( "setPage",        &PopplerNode::setPage)
     .def( "getAnnotations", &PopplerNode::getPageAnnotations)
     
     .add_property( "path",

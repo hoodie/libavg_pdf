@@ -275,7 +275,7 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
 
 void
 PopplerNode::
-rerender(page_index_t page_index)
+setPage(page_index_t page_index)
 {
   if(page_index < 0 or page_index >= m_iPageCount){
     cerr << "page_index out of bound" << endl;
@@ -312,16 +312,8 @@ resize(page_index_t page_index, double width = 0, double height = 0)
 
 void
 PopplerNode::
-adaptSize(){
+rerender(){
   resize(getCurrentPage(), AreaNode::getSize().x, AreaNode::getSize().y);
-}
-
-void
-PopplerNode::
-open()
-{
-  setViewport(-32767, -32767, -32767, -32767);
-  setupContext();
 }
 
 void
@@ -336,17 +328,11 @@ setupContext(){
 
 void
 PopplerNode::
-connect(CanvasPtr pCanvas)
-{
-  RasterNode::connect(pCanvas);
-}
-
-void
-PopplerNode::
 connectDisplay()
 {
   RasterNode::connectDisplay();
-  open();
+  setViewport(-32767, -32767, -32767, -32767);
+  setupContext();
 }
 
 void
@@ -368,14 +354,6 @@ preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffective
   calcVertexArray(pVA);
 }
 
-void
-PopplerNode::
-renderFX() {
-    RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false);
-}
-
-void PopplerNode:: render() {
-  //cout << "... render()" << endl;
-  //ScopeTimer Timer(CameraProfilingZone);
-  blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode());
-}
+// TODO remove render() and renderFX() as soonn as libavg permits
+void PopplerNode:: renderFX() { RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false); } 
+void PopplerNode:: render()   { blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode()); }

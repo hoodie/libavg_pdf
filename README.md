@@ -26,23 +26,23 @@ popplerNode = libavg.PopplerNode(path = path) # loads the pdf file
 
 someDivNode.appendChild( popplerNode )
 
-popplerNode.adaptSize() # triggers first render
+popplerNode.rerender() # triggers first render
 
 ## switching pages
 
 cp = popplerNode.current_page # contains the current page
 
-popplerNode.rerender(cp+1) # renders next page
-popplerNode.rerender(cp-1) # renders previous page
+popplerNode.setPage(cp+1) # renders next page
+popplerNode.setPage(cp-1) # renders previous page
 
 # previously rendered pages are being cached
 
 ## size handeling is inherited from AreaNode
-# PopplerNode does not rerender automatically after resizing
+# PopplerNode does not setPage automatically after resizing
 popplerNode.size *= 0.5
 
 # trigger render to sharpen up
-popplerNode.adaptSize() # this will drop the cache of rendered pages
+popplerNode.rerender() # this will drop the cache of rendered pages
 
 
 ```
@@ -50,7 +50,7 @@ popplerNode.adaptSize() # this will drop the cache of rendered pages
 ## TODO ( not yet implemented functionality )
 
 -   higher level wrapper written in python
-*   background prerendering of pages 
+*   background psetPageing of pages 
 -   modifing pdf, including:
 
     -   adding annotations

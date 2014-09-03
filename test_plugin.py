@@ -29,8 +29,8 @@ class MyMainDiv(app.MainDiv):
         self.backNode = libavg.RectNode( fillcolor = "FFFFFF", size = libavg.Point2D(200,200), fillopacity = 1) 
         self.appendChild( self.backNode )
         self.appendChild( self.popNode )
-        popNode.adaptSize()
-        #popNode.rerender(0)
+        popNode.rerender()
+        #popNode.setPage(0)
         
         #self.popNode.size *= .5
         self.backNode.size = self.popNode.size
@@ -45,8 +45,7 @@ class MyMainDiv(app.MainDiv):
         
     def handle_test(self):
       page = self.popNode.current_page
-      self.popNode.rerender(page)
-      self.popNode.adaptSize()
+      self.popNode.rerender()
       
     def handle_incr(self):
       self.popNode.size *= 1.1
@@ -64,11 +63,11 @@ class MyMainDiv(app.MainDiv):
       
     def handle_prev(self):
       page = self.popNode.current_page
-      self.popNode.rerender(page-1)
+      self.popNode.setPage(page-1)
 
     def handle_next(self):
       page = self.popNode.current_page
-      self.popNode.rerender(page+1)
+      self.popNode.setPage(page+1)
 
     def onExit(self):
         pass
