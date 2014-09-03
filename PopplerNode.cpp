@@ -54,7 +54,7 @@ PopplerNode::PopplerNode(const ArgList& args)
   
   
   if(!this->loadDocument()) {
-    cout << "[fail] could not open document" << endl; // TODO load some placeholder in case of loadfailure
+    cerr << "[fail] could not open document" << endl; // TODO load some placeholder in case of loadfailure
   }
     
 }
@@ -63,7 +63,7 @@ void
 PopplerNode::
 setPath(std::string path)
 {
-  std::cout << "setting path to \"" << path << "\"" << std::endl;
+  //std::clog << "setting path to \"" << path << "\"" << std::endl;
   m_pPdfPath = path;
 }
 
@@ -204,7 +204,7 @@ loadDocument()
     
   }
   else
-    cout << "document seems to have 0 pages";
+    cerr << "document seems to have 0 pages";
   return false;
   
   return true;
@@ -225,7 +225,7 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   
   PopplerPage* page = m_vPages[page_index];
   
-  std::clog << "--- fill_bitmap()" << endl;
+  //std::clog << "--- fill_bitmap()" << endl;
   cairo_surface_t *surface;
   cairo_t *cairo;
 
@@ -235,7 +235,7 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   else {
     m_pNodeSize = size;
     m_bNewSize  = true;
-    std::clog << "setting new size: " << width << " ," << height << endl;
+    //std::clog << "setting new size: " << width << " ," << height << endl;
   }
 
 
@@ -243,8 +243,8 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   xscale = size.x / (double)getPageSize(page).x;
   yscale = size.y / (double)getPageSize(page).y;
 
-  std::clog << "pagesize to:  " << getPageSize(m_iCurrentPage).x << " ," << getPageSize(m_iCurrentPage).y << endl;
-  std::clog << "scaling to:  " << xscale << " ," << yscale << endl;
+  //std::clog << "pagesize to:  " << getPageSize(m_iCurrentPage).x << " ," << getPageSize(m_iCurrentPage).y << endl;
+  //std::clog << "scaling to:  " << xscale << " ," << yscale << endl;
 
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.x, size.y);
   cairo   = cairo_create(surface);
@@ -264,7 +264,6 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
     new avg::Bitmap(size, m_pPixelFormat, data, stride, true)
   );
   
-  cout << "getting till here" << endl;
   m_vPageBitmaps.at(page_index) = m_pBitmap;
   
   m_bNewBmp           = true;
@@ -297,16 +296,16 @@ resize(page_index_t page_index, double width = 0, double height = 0)
 {
   if(page_index < 0 or page_index >= m_iPageCount)
     return;
-  clog << "rerendering page: " << page_index << endl;
+  //clog << "rerendering page: " << page_index << endl;
   
   if (width != 0 and height!=0)
   {
-    clog << "resetting bitmap cache ";
+    //clog << "resetting bitmap cache ";
     m_vPageBitmaps.clear();
     m_vPageBitmaps = std::vector<avg::BitmapPtr>(m_iPageCount);
     m_bNewSize = true;
   }
-  clog << "resizing to " << width << ", " << height;
+  //clog << "resizing to " << width << ", " << height;
   fill_bitmap(page_index, width, height);
 }
 
