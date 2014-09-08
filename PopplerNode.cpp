@@ -28,7 +28,7 @@ registerType()
     TypeDefinition
     def = TypeDefinition("popplernode", "rasternode",
                          ExportedObject::buildObject<PopplerNode>)
-          .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pPdfPath)) ) ;
+          .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pRelPdfPath)) ) ;
     //.addArg(  Arg<string>("fillcolor",   "0F0F0F",  false,  offsetof(ColorNode,  m_sFillColorName) ));
 
     //const char* allowedParentNodeNames[] = {"avg", 0};
@@ -40,8 +40,10 @@ registerType()
 PopplerNode:: PopplerNode() { }
 PopplerNode:: ~PopplerNode() { }
 
+//TODO add: opened correctly boolean to python api
 PopplerNode::PopplerNode(const ArgList& args)
     : m_pPixelFormat(avg::B8G8R8A8)
+    , m_pRelPdfPath("")
     , m_pPdfPath("")
     , m_bNewSize(false)
     , m_bNewBmp(false)
@@ -49,9 +51,12 @@ PopplerNode::PopplerNode(const ArgList& args)
     , m_iCurrentPage(-1)
 {
   AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO, "PopplerNode c'tor gets Argument path= "  << args.getArgVal<string>("path") );
-  AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO, "PopplerNode constructed with " << m_pPdfPath );
+  AVG_TRACE( Logger::category::PLUGIN, Logger::severity::INFO, "PopplerNode constructed with " << m_pRelPdfPath );
   args.setMembers(this);
   
+  char longer_path [PATH_MAX+1];
+  char* path = realpath(m_pRelPdfPath.c_str(), longer_path);
+  m_pPdfPath = std::string("file://").append(std::string(path));
   
   if(!this->loadDocument()) {
     cerr << "[fail] could not open document" << endl; // TODO load some placeholder in case of loadfailure
@@ -63,7 +68,6 @@ void
 PopplerNode::
 setPath(std::string path)
 {
-  //std::clog << "setting path to \"" << path << "\"" << std::endl;
   m_pPdfPath = path;
 }
 
@@ -166,6 +170,7 @@ getPageAnnotations(page_index_t index) const
     a.contents = poppler_annot_get_contents(pannot);
     a.modified = poppler_annot_get_modified(pannot);
     a.area     = ((PopplerAnnotMapping*)lptr->data)->area;
+    // TODO replace _Color with libavg::Pixel32
     a.color.red   = pcolor->red;
     a.color.green = pcolor->green;
     a.color.blue  = pcolor->blue;
@@ -188,6 +193,7 @@ loadDocument()
   if(m_pDocument == NULL) {
     //cout << "[fail] Problem loading " << m_pPdfPath << endl;
     //cout << error->message << endl;
+    cerr << "[fail] poppler did not open the document " << m_pPdfPath << endl;
     return false;
   }
   //cout << "[ok] loaded document " << poppler_document_get_title(m_pDocument) << endl;
@@ -201,12 +207,13 @@ loadDocument()
       m_vPages.at(i) = (poppler_document_get_page(m_pDocument,i));
     }
     setCurrentPage(0);
-    
+    //cout << "[ok] poppler opened " << m_pPdfPath << endl;
   }
-  else
+  else {
     cerr << "document seems to have 0 pages";
-  return false;
-  
+    return false;
+  }
+
   return true;
 }
 
@@ -243,10 +250,9 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   xscale = size.x / (double)getPageSize(page).x;
   yscale = size.y / (double)getPageSize(page).y;
 
-  //std::clog << "pagesize to:  " << getPageSize(m_iCurrentPage).x << " ," << getPageSize(m_iCurrentPage).y << endl;
-  //std::clog << "scaling to:  " << xscale << " ," << yscale << endl;
 
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.x, size.y);
+  // TODO save a few microseconds using: cairo_image_surface_create_for_data()
   cairo   = cairo_create(surface);
 
   cairo_scale(cairo, xscale,yscale);

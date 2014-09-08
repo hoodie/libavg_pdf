@@ -83,6 +83,7 @@ private:
           avg::PixelFormat  m_pPixelFormat;
            PopplerDocument* m_pDocument;
               MCTexturePtr  m_pTex;
+               std::string  m_pRelPdfPath;
                std::string  m_pPdfPath;
                  BitmapPtr  m_pBitmap;
                   IntPoint  m_pNodeSize;
