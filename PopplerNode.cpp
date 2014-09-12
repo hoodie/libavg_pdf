@@ -14,8 +14,6 @@
 
 #include "PopplerNode.h"
 
-#include "wrapper.h"
-
 using namespace std;
 using namespace avg;
 
@@ -76,7 +74,15 @@ const string
 PopplerNode::
 getPath() const
 {
-    return m_pPdfPath;
+  return m_pPdfPath;
+}
+
+const string
+PopplerNode::
+getText(page_index_t page_index) const
+{
+  PopplerPage* page = poppler_document_get_page(m_pDocument,page_index);
+  return poppler_page_get_text(page);
 }
 
 const string
@@ -102,25 +108,13 @@ getCurrentPage() const
 
 IntPoint
 PopplerNode::
-getMediaSize()
+getPageSize(page_index_t index) const
 {
-  return m_pNodeSize;
-}
-
-IntPoint
-PopplerNode::
-getPageSize(PopplerPage* page)
-{
+  PopplerPage* page = m_vPages[index];
   double width, height;
   poppler_page_get_size(page, &width, &height);
+  // TODO find alternative to IntPoint that takes doubles etc
   return IntPoint(width,height);
-}
-
-IntPoint
-PopplerNode::
-getPageSize(page_index_t index)
-{
-  return getPageSize(m_vPages[index]);
 }
 
 const string PopplerNode::getDocumentTitle()   const { return poppler_document_get_title(m_pDocument); }
@@ -142,11 +136,39 @@ getPageTextLayout(page_index_t index) const
   boost::shared_ptr<PopplerRectangle[]>rects(rectangles);
   
   py::list plist;
-  for (guint i =0 ; i< n_rectangles; ++i)
-    plist.append<PopplerRectangle>(rects[i]);
+  for (guint i =0 ; i< n_rectangles; ++i){
+    Box box = boxFromPopplerRectangle(rects[i]);
+    box.height *= -1;
+    plist.append<_Box>(box);
+  }
   
   return plist;
 }
+
+const _Box
+PopplerNode::
+boxFromPopplerRectangle(PopplerRectangle rect) const
+{
+  Box box;
+  box.x = rect.x1;
+  box.y = rect.y2;
+  box.width  = abs(rect.x2 - rect.x1);
+  box.height = abs(rect.y1 - rect.y2);
+  return box;
+}
+
+const PopplerRectangle
+PopplerNode::
+popplerRectangleFromBox(Box box) const
+{
+  PopplerRectangle rect;
+  rect.x1 = box.x;
+  rect.y1 = box.y + box.height;
+  rect.x2 = box.x + box.width;
+  rect.y2 = box.y;
+  return rect;
+}
+
 
 py::list
 PopplerNode::
@@ -154,22 +176,28 @@ getPageAnnotations(page_index_t index) const
 {
   
   PopplerPage* page = m_vPages[index];
+  double width, height;
+  poppler_page_get_size(page, &width, &height);
   GList* lptr;
-  GList* glist = poppler_page_get_annot_mapping(page);
-  py::list plist; 
-  for (lptr = glist; lptr != NULL; lptr = lptr->next)
+  GList* mapping_list = poppler_page_get_annot_mapping(page);
+  py::list plist;  
+  for (lptr = mapping_list; lptr; lptr = lptr->next)
   {
-    
     Annotation a;
     
     PopplerAnnot* pannot = (PopplerAnnot*)(((PopplerAnnotMapping*)lptr->data)->annot);
     PopplerColor* pcolor = poppler_annot_get_color(pannot);
+    PopplerRectangle rect = (PopplerRectangle)((PopplerAnnotMapping*)lptr->data)->area;
     
-    //a.name =  annot->getName()->getCString();
+    
+    // CATCH SEGFAULT HERE
+    
     a.name     = poppler_annot_get_name(pannot);
     a.contents = poppler_annot_get_contents(pannot);
     a.modified = poppler_annot_get_modified(pannot);
-    a.area     = ((PopplerAnnotMapping*)lptr->data)->area;
+    a.area     = rect;
+    a.box      = boxFromPopplerRectangle(rect);
+    a.box.y    = abs(height - a.box.y); // corrects rotion
     // TODO replace _Color with libavg::Pixel32
     a.color.red   = pcolor->red;
     a.color.green = pcolor->green;
@@ -178,7 +206,7 @@ getPageAnnotations(page_index_t index) const
     plist.append( a );
     
   }
-    
+  
   return plist;
 }
 
@@ -200,12 +228,13 @@ loadDocument()
   m_iPageCount = poppler_document_get_n_pages(m_pDocument);
   
   if(m_iPageCount > 0){
-    m_vPages = std::vector<PopplerPage*> (m_iPageCount);
-    m_vPageBitmaps = std::vector<avg::BitmapPtr>(m_iPageCount);
+    m_vPages        = std::vector<PopplerPage*> (m_iPageCount);
+    m_vPageBitmaps  = std::vector<avg::BitmapPtr>(m_iPageCount);
     
     for(int i = 0; i< m_iPageCount; ++i){
       m_vPages.at(i) = (poppler_document_get_page(m_pDocument,i));
     }
+    
     setCurrentPage(0);
     //cout << "[ok] poppler opened " << m_pPdfPath << endl;
   }
@@ -246,15 +275,17 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   }
 
 
+  double pwidth, pheight;
   double xscale, yscale;
-  xscale = size.x / (double)getPageSize(page).x;
-  yscale = size.y / (double)getPageSize(page).y;
-
+  poppler_page_get_size(page, &pwidth, &pheight);
+  xscale = size.x / pwidth;
+  yscale = size.y / pheight;
 
   surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size.x, size.y);
   // TODO save a few microseconds using: cairo_image_surface_create_for_data()
   cairo   = cairo_create(surface);
-
+  
+  //clog << "xscale: " << xscale << endl;
   cairo_scale(cairo, xscale,yscale);
 
   poppler_page_render( page, cairo );
@@ -317,13 +348,15 @@ resize(page_index_t page_index, double width = 0, double height = 0)
 
 void
 PopplerNode::
-rerender(){
+rerender()
+{
   resize(getCurrentPage(), AreaNode::getSize().x, AreaNode::getSize().y);
 }
 
 void
 PopplerNode::
-setupContext(){
+setupContext()
+{
   bool bMipmap = getMaterial().getUseMipmaps();
   m_pTex    = GLContextManager::get()->createTexture(m_pNodeSize, m_pPixelFormat, bMipmap);
   getSurface()->create(m_pPixelFormat,m_pTex);

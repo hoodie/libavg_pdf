@@ -4,8 +4,6 @@
 #include <wrapper/raw_constructor.hpp>
 #include "PopplerNode.h"
 
-#include "wrapper.h"
-
 using namespace avg;
 using namespace boost::python;
 
@@ -21,11 +19,18 @@ BOOST_PYTHON_MODULE(popplerplugin) {
   class_<_Annotation>("Annotation") // from wrapper.h
     .add_property("area",       &Annotation::area)  
     .add_property("name",       &Annotation::name)  
+    .add_property("box",        &Annotation::box)  
     .add_property("modified",   &Annotation::modified)
     .add_property("label",      &Annotation::label)
     .add_property("color",      &Annotation::color)
     .add_property("contents",   &Annotation::contents);
   
+  class_<_Box>("Box") // from wrapper.h
+    .add_property("x",      &Box::x)
+    .add_property("y",      &Box::y)
+    .add_property("width",  &Box::width)
+    .add_property("height", &Box::height);
+    
   class_<_Color>("Color") // from wrapper.h
     .add_property("red",    &Color::red  )
     .add_property("green",  &Color::green)
@@ -34,19 +39,20 @@ BOOST_PYTHON_MODULE(popplerplugin) {
 
   class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
-    .def( "next",           &PopplerNode::getPopplerVersion)
-    .def( "rerender",       &PopplerNode::rerender)
-    .def( "resize",         &PopplerNode::resize)
-    .def( "getPageLayout",  &PopplerNode::getPageTextLayout)
-    .def( "setPage",        &PopplerNode::setPage)
+    .def( "next",               &PopplerNode::getPopplerVersion)
+    .def( "rerender",           &PopplerNode::rerender)
+    .def( "resize",             &PopplerNode::resize)
+    .def( "getPageLayout",      &PopplerNode::getPageTextLayout)
+    .def( "getPageSize",        &PopplerNode::getPageSize)
+    .def( "setPage",            &PopplerNode::setPage)
+    .def( "getText",            &PopplerNode::getText)
     .def( "getPageAnnotations", &PopplerNode::getPageAnnotations)
-    .def( "getPageCount",   &PopplerNode::getPageCount )
-    .def( "getCurrentPage", &PopplerNode::getCurrentPage)
+    .def( "getPageCount",       &PopplerNode::getPageCount )
+    .def( "getCurrentPage",     &PopplerNode::getCurrentPage)
     
     .add_property( "path",
                   &PopplerNode::getPath,
                   &PopplerNode::setPath )
-    .add_property( "mediaSize",       &PopplerNode::getMediaSize )
     .add_property( "pageCount",       &PopplerNode::getPageCount )
     //.add_property( "currentPage",     &PopplerNode::getCurrentPage)
     //.add_property( "title",           &PopplerNode::getDocumentTitle )

@@ -19,11 +19,13 @@
 //
 //  Original author of this file is Hendrik Sollich <hendrik@hoodie.de>
 
+#ifndef __WRAPPER_H__ 
+#define __WRAPPER_H__ 
 #include <string>
 
 namespace avg {
 
-  typedef   int page_index_t ;
+typedef int page_index_t ;
 
   typedef struct _Color{
     int red;
@@ -31,12 +33,21 @@ namespace avg {
     int blue;
   } Color;
 
+  typedef struct _Box{
+    double x;
+    double y;
+    double width;
+    double height;
+  } Box;
+  
   typedef struct _Annotation{
     PopplerRectangle area;
         std::string  name,contents,label;
         std::string  modified;
-               _Color  color;
+             _Color  color;
+               _Box  box;
   //       enum  type; // TODO implement annot_type enum
   } Annotation;   
 
 }
+#endif /* __WRAPPER_H__ */

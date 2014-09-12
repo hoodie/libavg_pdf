@@ -12,7 +12,7 @@ PopplerNode = popplerplugin.PopplerNode
 
 for possible_path in sys.argv:
   if os.path.exists(possible_path):
-    path  = "file://" + os.path.abspath(possible_path)
+    path  = os.path.abspath(possible_path)
     
 if path == None:
   print "no valid path"
