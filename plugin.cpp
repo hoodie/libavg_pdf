@@ -28,6 +28,9 @@ BOOST_PYTHON_MODULE(popplerplugin) {
   class_<_Box>("Box") // from wrapper.h
     .add_property("x",      &Box::x)
     .add_property("y",      &Box::y)
+    .add_property("x2",     &Box::x2)
+    .add_property("y2",     &Box::y2)
+    .add_property("payload",&Box::payload)
     .add_property("width",  &Box::width)
     .add_property("height", &Box::height);
     
@@ -45,7 +48,6 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "getPageLayout",      &PopplerNode::getPageTextLayout)
     .def( "getPageSize",        &PopplerNode::getPageSize)
     .def( "setPage",            &PopplerNode::setPage)
-    .def( "getText",            &PopplerNode::getText)
     .def( "getPageAnnotations", &PopplerNode::getPageAnnotations)
     .def( "getPageCount",       &PopplerNode::getPageCount )
     .def( "getCurrentPage",     &PopplerNode::getCurrentPage)

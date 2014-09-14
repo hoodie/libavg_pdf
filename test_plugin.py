@@ -88,3 +88,6 @@ hello = "hello world"
 
 print
 print "q = quit"
+
+
+#popNode.getPath

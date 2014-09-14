@@ -34,10 +34,9 @@ typedef int page_index_t ;
   } Color;
 
   typedef struct _Box{
-    double x;
-    double y;
-    double width;
-    double height;
+    double x, y, x2, y2;
+    double width, height;
+    std::string payload;
   } Box;
   
   typedef struct _Annotation{

@@ -19,6 +19,8 @@ using namespace avg;
 
 namespace py = boost::python;
 
+typedef PopplerRectangle PopplerRect;
+
 void
 PopplerNode::
 registerType()
@@ -79,14 +81,6 @@ getPath() const
 
 const string
 PopplerNode::
-getText(page_index_t page_index) const
-{
-  PopplerPage* page = poppler_document_get_page(m_pDocument,page_index);
-  return poppler_page_get_text(page);
-}
-
-const string
-PopplerNode::
 getPopplerVersion() const
 {
   return poppler_get_version();
@@ -120,7 +114,14 @@ getPageSize(page_index_t index) const
 const string PopplerNode::getDocumentTitle()   const { return poppler_document_get_title(m_pDocument); }
 const string PopplerNode::getDocumentAuthor()  const { return poppler_document_get_author(m_pDocument); }
 const string PopplerNode::getDocumentSubject() const { return poppler_document_get_subject(m_pDocument); }
-const string PopplerNode::getPageText()        const { return poppler_page_get_text(m_vPages[m_iCurrentPage]) ;}
+
+const
+string
+PopplerNode::
+getPageText(page_index_t page_index) const
+{
+  return poppler_page_get_text(m_vPages[page_index]) ;
+}
 
 py::list
 PopplerNode::
@@ -138,6 +139,7 @@ getPageTextLayout(page_index_t index) const
   py::list plist;
   for (guint i =0 ; i< n_rectangles; ++i){
     Box box = boxFromPopplerRectangle(rects[i]);
+    box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &rects[i] );
     box.height *= -1;
     plist.append<_Box>(box);
   }
@@ -152,6 +154,8 @@ boxFromPopplerRectangle(PopplerRectangle rect) const
   Box box;
   box.x = rect.x1;
   box.y = rect.y2;
+  box.x2 = rect.x2;
+  box.y2 = rect.y1;
   box.width  = abs(rect.x2 - rect.x1);
   box.height = abs(rect.y1 - rect.y2);
   return box;
@@ -181,6 +185,7 @@ getPageAnnotations(page_index_t index) const
   GList* lptr;
   GList* mapping_list = poppler_page_get_annot_mapping(page);
   py::list plist;  
+
   for (lptr = mapping_list; lptr; lptr = lptr->next)
   {
     Annotation a;
@@ -197,7 +202,15 @@ getPageAnnotations(page_index_t index) const
     a.modified = poppler_annot_get_modified(pannot);
     a.area     = rect;
     a.box      = boxFromPopplerRectangle(rect);
-    a.box.y    = abs(height - a.box.y); // corrects rotion
+    a.box.y    = abs(height - a.box.y); // corrects rotation
+
+    PopplerRect new_rect;
+    new_rect.x1 = rect.x1;
+    new_rect.x2 = rect.x2;
+    new_rect.y1 = abs(height - rect.y1);
+    new_rect.y2 = abs(height - rect.y2);
+
+    a.box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &new_rect );
     // TODO replace _Color with libavg::Pixel32
     a.color.red   = pcolor->red;
     a.color.green = pcolor->green;
@@ -367,7 +380,7 @@ setupContext()
 void
 PopplerNode::
 connectDisplay()
-{
+{ 
   RasterNode::connectDisplay();
   setViewport(-32767, -32767, -32767, -32767);
   setupContext();

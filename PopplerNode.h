@@ -49,7 +49,6 @@ public:
 // PopplerNodes Own
                       void  setPath(std::string path);
               const string  getPath()             const;
-              const string  getText(page_index_t) const;
 
               const string  getPopplerVersion()   const;
                  const int  getPageCount()        const;
@@ -58,7 +57,7 @@ public:
               const string  getDocumentTitle()    const;
               const string  getDocumentAuthor()   const;
               const string  getDocumentSubject()  const;
-              const string  getPageText()         const;
+              const string  getPageText(page_index_t)  const;
 
                   py::list  getPageTextLayout(page_index_t) const;
                   py::list  getPageAnnotations(page_index_t) const;
@@ -88,7 +87,7 @@ private:
                std::string  m_pRelPdfPath;
                std::string  m_pPdfPath;
                  BitmapPtr  m_pBitmap;
-               IntPoint  m_pNodeSize;
+                  IntPoint  m_pNodeSize;
                       bool  m_bNewSize;
                       bool  m_bNewBmp;
                        int  m_iPageCount;
