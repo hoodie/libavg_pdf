@@ -195,7 +195,8 @@ getPageAnnotations(page_index_t index) const
     PopplerRectangle rect = (PopplerRectangle)((PopplerAnnotMapping*)lptr->data)->area;
     
     
-    // CATCH SEGFAULT HERE
+    if(poppler_annot_get_flags(pannot) == POPPLER_ANNOT_FLAG_UNKNOWN)
+      continue; // some annotations just want to watch the world burn
     
     a.name     = poppler_annot_get_name(pannot);
     a.contents = poppler_annot_get_contents(pannot);
