@@ -21,15 +21,26 @@ namespace py = boost::python;
 
 typedef PopplerRectangle PopplerRect;
 
+
+
+string plprfx = "   [ PopplerNode ] ";
+const char* annottypenames[26] = {
+  "UNKNOWN",    "TEXT",      "LINK",             "FREE_TEXT",  "LINE",
+  "SQUARE",     "CIRCLE",    "POLYGON",          "POLY_LINE",  "HIGHLIGHT",
+  "UNDERLINE",  "SQUIGGLY",  "STRIKE_OUT",       "STAMP",      "CARET",
+  "INK",        "POPUP",     "FILE_ATTACHMENT",  "SOUND",      "MOVIE",
+  "WIDGET",     "SCREEN",    "PRINTER_MARK",     "TRAP_NET",   "WATERMARK",  "3D"
+};
+
 void
 PopplerNode::
 registerType()
 {
-    TypeDefinition
+  TypeDefinition
     def = TypeDefinition("popplernode", "rasternode",
-                         ExportedObject::buildObject<PopplerNode>)
-          .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pRelPdfPath)) ) ;
-    //.addArg(  Arg<string>("fillcolor",   "0F0F0F",  false,  offsetof(ColorNode,  m_sFillColorName) ));
+        ExportedObject::buildObject<PopplerNode>)
+    .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pRelPdfPath)) ) ;
+  //.addArg(  Arg<string>("fillcolor",   "0F0F0F",  false,  offsetof(ColorNode,  m_sFillColorName) ));
 
     //const char* allowedParentNodeNames[] = {"avg", 0};
     const char* allowedParentNodeNames[] = {"avg", "div",  0};
@@ -182,6 +193,7 @@ getPageAnnotations(page_index_t index) const
   PopplerPage* page = m_vPages[index];
   double width, height;
   poppler_page_get_size(page, &width, &height);
+
   GList* lptr;
   GList* mapping_list = poppler_page_get_annot_mapping(page);
   py::list plist;  
@@ -190,13 +202,18 @@ getPageAnnotations(page_index_t index) const
   {
     Annotation a;
     
-    PopplerAnnot* pannot = (PopplerAnnot*)(((PopplerAnnotMapping*)lptr->data)->annot);
-    PopplerColor* pcolor = poppler_annot_get_color(pannot);
-    PopplerRectangle rect = (PopplerRectangle)((PopplerAnnotMapping*)lptr->data)->area;
+
+    PopplerAnnotMapping* map = (PopplerAnnotMapping*)lptr->data;
+    PopplerAnnot* pannot     = map->annot;
+    PopplerColor* pcolor     = poppler_annot_get_color(pannot);
+    PopplerRectangle rect    = map->area;
     
-    
-    if(poppler_annot_get_flags(pannot) == POPPLER_ANNOT_FLAG_UNKNOWN)
+    PopplerAnnotType type = poppler_annot_get_annot_type(pannot);
+    if( poppler_annot_get_annot_type(pannot) != POPPLER_ANNOT_HIGHLIGHT and
+        poppler_annot_get_annot_type(pannot) != POPPLER_ANNOT_UNDERLINE) {
+      cout << plprfx << "Annotation: " << annottypenames[type] << " is not supported" << endl;
       continue; // some annotations just want to watch the world burn
+    }
     
     a.name     = poppler_annot_get_name(pannot);
     a.contents = poppler_annot_get_contents(pannot);
@@ -228,17 +245,17 @@ bool
 PopplerNode::
 loadDocument()
 {
-  //cout << "--- loading document (" << m_pPdfPath << ")" << endl;
+  //cout << plprfx << "--- loading document (" << m_pPdfPath << ")" << endl;
   GError *error = NULL;
   m_pDocument = poppler_document_new_from_file(m_pPdfPath.c_str(), NULL, &error);
   
   if(m_pDocument == NULL) {
-    //cout << "[fail] Problem loading " << m_pPdfPath << endl;
-    //cout << error->message << endl;
+    //cout << plprfx << "[fail] Problem loading " << m_pPdfPath << endl;
+    //cout << plprfx << error->message << endl;
     cerr << "[fail] poppler did not open the document " << m_pPdfPath << endl;
     return false;
   }
-  //cout << "[ok] loaded document " << poppler_document_get_title(m_pDocument) << endl;
+  //cout << plprfx << "[ok] loaded document " << poppler_document_get_title(m_pDocument) << endl;
   m_iPageCount = poppler_document_get_n_pages(m_pDocument);
   
   if(m_iPageCount > 0){
@@ -250,7 +267,7 @@ loadDocument()
     }
     
     setCurrentPage(0);
-    //cout << "[ok] poppler opened " << m_pPdfPath << endl;
+    //cout << plprfx << "[ok] poppler opened " << m_pPdfPath << endl;
   }
   else {
     cerr << "document seems to have 0 pages";

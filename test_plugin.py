@@ -81,13 +81,14 @@ def start():
     sys.argv = []
     appapp.run(MyMainDiv())
 
-if "start" in sys.argv:
-  start()
+if "annots" in sys.argv:
+    annots = popNode.getPageAnnotations(0)
+    print annots
+
+elif "start" in sys.argv:
+    start()
   
 hello = "hello world"
 
 print
 print "q = quit"
-
-
-#popNode.getPath
