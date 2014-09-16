@@ -145,15 +145,15 @@ getPageTextLayout(page_index_t index) const
   guint n_rectangles; 
   poppler_page_get_text_layout(page, &rectangles, &n_rectangles);
   
-  boost::shared_ptr<PopplerRectangle[]>rects(rectangles);
-  
   py::list plist;
   for (guint i =0 ; i< n_rectangles; ++i){
-    Box box = boxFromPopplerRectangle(rects[i]);
-    box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &rects[i] );
+    Box box = boxFromPopplerRectangle(rectangles[i]);
+    box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &rectangles[i] );
     box.height *= -1;
     plist.append<_Box>(box);
   }
+
+  g_free(rectangles);
   
   return plist;
 }
