@@ -65,11 +65,14 @@ BOOST_PYTHON_MODULE(popplerplugin) {
 }
 
 
-AVG_PLUGIN_API void registerPlugin() {
+AVG_PLUGIN_API PyObject* registerPlugin() {
+#if PY_MAJOR_VERSION < 3
     initpopplerplugin();
-    object mainModule(handle<>(borrowed(PyImport_AddModule("__builtin__"))));
-    object popplerModule(handle<>(PyImport_ImportModule("popplerplugin")));
-    mainModule.attr("popplerplugin") = popplerModule;
+    PyObject* pyPopplerModule = PyImport_ImportModule("popplerplugin");
+#else
+    PyObject* pyPopplerModule = PyInit_popplerplugin();
+#endif
 
     avg::PopplerNode::registerType();
+    return pyPopplerModule;
 }

@@ -75,7 +75,6 @@ public:
                   IntPoint  getPageSize(page_index_t) const;
 
           // RasterNode overwrites
-              virtual void  renderFX();
               virtual void  render();
               virtual void  preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity);
               virtual void  connectDisplay();

@@ -48,7 +48,7 @@ registerType()
     TypeRegistry::get()->registerType(def, allowedParentNodeNames);
 }
 
-PopplerNode:: PopplerNode() { }
+PopplerNode::  PopplerNode() { }
 PopplerNode:: ~PopplerNode() { }
 
 //TODO add: opened correctly boolean to python api
@@ -423,6 +423,5 @@ preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffective
   calcVertexArray(pVA);
 }
 
-// TODO remove render() and renderFX() as soonn as libavg permits
-void PopplerNode:: renderFX() { RasterNode::renderFX(getSize(), Pixel32(255, 255, 255, 255), false); } 
-void PopplerNode:: render()   { blt32(getTransform(), getSize(), getEffectiveOpacity(), getBlendMode()); }
+  // TODO remove render() and renderFX() as soonn as libavg permits
+void PopplerNode:: render()   { blt32(); }
