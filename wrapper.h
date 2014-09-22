@@ -21,17 +21,18 @@
 
 #ifndef __WRAPPER_H__ 
 #define __WRAPPER_H__ 
+#include <graphics/Pixel32.h>
 #include <string>
 
 namespace avg {
 
 typedef int page_index_t ;
 
-  typedef struct _Color{
-    int red;
-    int green;
-    int blue;
-  } Color;
+  //typedef struct _Color{
+  //  int red;
+  //  int green;
+  //  int blue;
+  //} Color;
 
   typedef struct _Box{
     double x, y, x2, y2;
@@ -43,7 +44,7 @@ typedef int page_index_t ;
     PopplerRectangle area;
         std::string  name,contents,label;
         std::string  modified;
-             _Color  color;
+            Pixel32  color;
                _Box  box;
   //       enum  type; // TODO implement annot_type enum
   } Annotation;   

@@ -4,6 +4,7 @@
 #include <graphics/GLContextManager.h>
 #include <graphics/BitmapLoader.h>
 #include <graphics/OGLHelper.h>
+#include <graphics/Pixel32.h>
 
 #include <string>
 #include <iostream>
@@ -229,10 +230,7 @@ getPageAnnotations(page_index_t index) const
     new_rect.y2 = abs(height - rect.y2);
 
     a.box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &new_rect );
-    // TODO replace _Color with libavg::Pixel32
-    a.color.red   = pcolor->red;
-    a.color.green = pcolor->green;
-    a.color.blue  = pcolor->blue;
+    a.color       = Pixel32(pcolor->red ,pcolor->green,pcolor->blue);
     
     plist.append( a );
     
