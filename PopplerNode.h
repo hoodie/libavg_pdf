@@ -38,6 +38,8 @@ namespace avg {
   
 typedef int page_index_t;
 
+enum ANNOTATION_RENDER_MODE{ ALL, UNSUPPORTED, NONE };
+
 class AVG_API PopplerNode : public RasterNode
 {
 public:
@@ -69,6 +71,7 @@ public:
                       void  resize(page_index_t, double width, double height);
                       void  rerender();
                       void  setPage(page_index_t);
+                    //void  remove_all_annotations(PopplerPage*);
 
                 const _Box  boxFromPopplerRectangle(PopplerRectangle) const;
     const PopplerRectangle  popplerRectangleFromBox(Box) const;
@@ -80,6 +83,7 @@ public:
               virtual void  connectDisplay();
 
 private:
+    ANNOTATION_RENDER_MODE  m_annotation_render_mode;
           avg::PixelFormat  m_pPixelFormat;
            PopplerDocument* m_pDocument;
               MCTexturePtr  m_pTex;

@@ -22,8 +22,6 @@ namespace py = boost::python;
 
 typedef PopplerRectangle PopplerRect;
 
-
-
 string plprfx = "   [ PopplerNode ] ";
 const char* annottypenames[26] = {
   "UNKNOWN",    "TEXT",      "LINK",             "FREE_TEXT",  "LINE",
@@ -69,6 +67,9 @@ PopplerNode::PopplerNode(const ArgList& args)
   char longer_path [PATH_MAX+1];
   char* path = realpath(m_pRelPdfPath.c_str(), longer_path);
   m_pPdfPath = std::string("file://").append(std::string(path));
+
+  m_annotation_render_mode = NONE;
+
   
   if(!this->loadDocument()) {
     cerr << "[fail] could not open document" << endl; // TODO load some placeholder in case of loadfailure
@@ -317,7 +318,9 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   //clog << "xscale: " << xscale << endl;
   cairo_scale(cairo, xscale,yscale);
 
-  poppler_page_render( page, cairo );
+  //remove_all_annotations(page);
+
+  poppler_page_render_for_printing_with_options( page, cairo, POPPLER_PRINT_DOCUMENT );
 
   cairo_set_operator(cairo, CAIRO_OPERATOR_DEST_OVER);
   cairo_set_source_rgba(cairo, 1., 0., 0., 0.);
@@ -374,6 +377,23 @@ resize(page_index_t page_index, double width = 0, double height = 0)
   //clog << "resizing to " << width << ", " << height;
   fill_bitmap(page_index, width, height);
 }
+
+//void
+//PopplerNode::
+//remove_all_annotations(PopplerPage* page)
+//{
+//  GList* lptr;
+//  GList* mapping_list = poppler_page_get_annot_mapping(page);
+//  py::list plist;  
+//
+//  for (lptr = mapping_list; lptr; lptr = lptr->next)
+//  {
+//    PopplerAnnotMapping* map = (PopplerAnnotMapping*)lptr->data;
+//    PopplerAnnot* pannot     = map->annot;
+//    poppler_page_remove_annot(page, pannot);
+//  }
+//
+//}
 
 void
 PopplerNode::
