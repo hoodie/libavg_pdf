@@ -30,7 +30,7 @@ class MyMainDiv(app.MainDiv):
         self.appendChild( self.backNode )
         self.appendChild( self.popNode )
         popNode.rerender()
-        #popNode.setPage(0)
+        #popNode.setCurrentPage(0)
         
         self.backNode.size = self.popNode.size
         print self.backNode.size
@@ -63,11 +63,11 @@ class MyMainDiv(app.MainDiv):
       
     def handle_prev(self):
       page = self.popNode.currentPage
-      self.popNode.setPage(page-1)
+      self.popNode.setCurrentPage(page-1)
 
     def handle_next(self):
       page = self.popNode.currentPage
-      self.popNode.setPage(page+1)
+      self.popNode.setCurrentPage(page+1)
 
     def onExit(self):
         pass

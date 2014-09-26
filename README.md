@@ -32,13 +32,13 @@ popplerNode.rerender() # triggers first render
 
 cp = popplerNode.currentPage # contains the current page
 
-popplerNode.setPage(cp+1) # renders next page
-popplerNode.setPage(cp-1) # renders previous page
+popplerNode.setCurrentPage(cp+1) # renders next page
+popplerNode.setCurrentPage(cp-1) # renders previous page
 
 # previously rendered pages are being cached
 
 ## size handeling is inherited from AreaNode
-# PopplerNode does not setPage automatically after resizing
+# PopplerNode does not setCurrentPage automatically after resizing
 popplerNode.size *= 0.5
 
 # trigger render to sharpen up
@@ -50,7 +50,7 @@ popplerNode.rerender() # this will drop the cache of rendered pages
 ## TODO ( not yet implemented functionality )
 
 -   higher level wrapper written in python
-*   background psetPageing of pages 
+*   background psetCurrentPageing of pages 
 -   modifing pdf, including:
 
     -   adding annotations

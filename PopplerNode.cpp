@@ -39,6 +39,7 @@ registerType()
     def = TypeDefinition("popplernode", "rasternode",
         ExportedObject::buildObject<PopplerNode>)
     .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pRelPdfPath)) ) ;
+    //.addArg( Arg<std::string>("render_annots","",false,offsetof(PopplerNode,m_bRenderAnnotations)) ) ;
   //.addArg(  Arg<string>("fillcolor",   "0F0F0F",  false,  offsetof(ColorNode,  m_sFillColorName) ));
 
     //const char* allowedParentNodeNames[] = {"avg", 0};
@@ -68,7 +69,8 @@ PopplerNode::PopplerNode(const ArgList& args)
   char* path = realpath(m_pRelPdfPath.c_str(), longer_path);
   m_pPdfPath = std::string("file://").append(std::string(path));
 
-  m_annotation_render_mode = NONE;
+  m_bRenderAnnotations = true;
+
 
   
   if(!this->loadDocument()) {
@@ -90,6 +92,18 @@ PopplerNode::
 getPath() const
 {
   return m_pPdfPath;
+}
+
+void
+PopplerNode::
+setRenderAnnotations(bool render_annots) {
+  m_bRenderAnnotations = render_annots;
+}
+
+const bool
+PopplerNode::
+getRenderAnnotations() const{
+  return m_bRenderAnnotations;
 }
 
 const string
@@ -170,7 +184,7 @@ boxFromPopplerRectangle(PopplerRectangle rect) const
   box.x2 = rect.x2;
   box.y2 = rect.y1;
   box.width  = abs(rect.x2 - rect.x1);
-  box.height = abs(rect.y1 - rect.y2);
+  box.height = abs(rect.y2 - rect.y1);
   return box;
 }
 
@@ -265,7 +279,8 @@ loadDocument()
       m_vPages.at(i) = (poppler_document_get_page(m_pDocument,i));
     }
     
-    setCurrentPage(0);
+    m_iCurrentPage = 0;
+    m_pNodeSize = getPageSize(0);
     //cout << plprfx << "[ok] poppler opened " << m_pPdfPath << endl;
   }
   else {
@@ -274,14 +289,6 @@ loadDocument()
   }
 
   return true;
-}
-
-void
-PopplerNode::
-setCurrentPage(page_index_t page_index)
-{
-  m_iCurrentPage = page_index;
-  m_pNodeSize = getPageSize(page_index);
 }
 
 void
@@ -320,7 +327,10 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
 
   //remove_all_annotations(page);
 
-  poppler_page_render_for_printing_with_options( page, cairo, POPPLER_PRINT_DOCUMENT );
+  if(m_bRenderAnnotations)
+    poppler_page_render( page, cairo );
+  else
+    poppler_page_render_for_printing_with_options( page, cairo, POPPLER_PRINT_DOCUMENT );
 
   cairo_set_operator(cairo, CAIRO_OPERATOR_DEST_OVER);
   cairo_set_source_rgba(cairo, 1., 0., 0., 0.);
@@ -343,7 +353,7 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
 
 void
 PopplerNode::
-setPage(page_index_t page_index)
+setCurrentPage(page_index_t page_index)
 {
   if(page_index < 0 or page_index >= m_iPageCount){
     cerr << "page_index out of bound" << endl;

@@ -50,14 +50,17 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "resize",             &PopplerNode::resize)
     .def( "getPageLayout",      &PopplerNode::getPageTextLayout)
     .def( "getPageSize",        &PopplerNode::getPageSize)
-    .def( "setPage",            &PopplerNode::setPage)
     .def( "getPageAnnotations", &PopplerNode::getPageAnnotations)
     .def( "getPageCount",       &PopplerNode::getPageCount )
     .def( "getCurrentPage",     &PopplerNode::getCurrentPage)
+    .def( "setCurrentPage",     &PopplerNode::setCurrentPage)
     
     .add_property( "path",
                   &PopplerNode::getPath,
                   &PopplerNode::setPath )
+    .add_property( "render_annots",
+                  &PopplerNode::getRenderAnnotations,
+                  &PopplerNode::setRenderAnnotations )
     .add_property( "pageCount",       &PopplerNode::getPageCount )
     //.add_property( "currentPage",     &PopplerNode::getCurrentPage)
     //.add_property( "title",           &PopplerNode::getDocumentTitle )

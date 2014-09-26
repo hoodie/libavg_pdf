@@ -38,8 +38,6 @@ namespace avg {
   
 typedef int page_index_t;
 
-enum ANNOTATION_RENDER_MODE{ ALL, UNSUPPORTED, NONE };
-
 class AVG_API PopplerNode : public RasterNode
 {
 public:
@@ -49,8 +47,10 @@ public:
          virtual ~PopplerNode();
          
 // PopplerNodes Own
-                      void  setPath(std::string path);
+                      void  setPath(std::string);
               const string  getPath()             const;
+                      void  setRenderAnnotations(bool);
+                const bool  getRenderAnnotations()const;
 
               const string  getPopplerVersion()   const;
                  const int  getPageCount()        const;
@@ -70,7 +70,6 @@ public:
                       void  lookup_bitmap(page_index_t);
                       void  resize(page_index_t, double width, double height);
                       void  rerender();
-                      void  setPage(page_index_t);
                     //void  remove_all_annotations(PopplerPage*);
 
                 const _Box  boxFromPopplerRectangle(PopplerRectangle) const;
@@ -83,7 +82,6 @@ public:
               virtual void  connectDisplay();
 
 private:
-    ANNOTATION_RENDER_MODE  m_annotation_render_mode;
           avg::PixelFormat  m_pPixelFormat;
            PopplerDocument* m_pDocument;
               MCTexturePtr  m_pTex;
@@ -91,6 +89,7 @@ private:
                std::string  m_pPdfPath;
                  BitmapPtr  m_pBitmap;
                   IntPoint  m_pNodeSize;
+                      bool  m_bRenderAnnotations;
                       bool  m_bNewSize;
                       bool  m_bNewBmp;
                        int  m_iPageCount;

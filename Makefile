@@ -1,9 +1,6 @@
 PLUGIN_NAME = popplerplugin
 PLUGIN_SOURCES = plugin.cpp PopplerNode.cpp
 
-# TODO remove absolute AVG_PATH
-AVG_PATH=/home/hendrik/code/hub
-
 ADDITIONAL_PKGCONFIG =
 ADDITIONAL_LINKOPT =
 
@@ -28,7 +25,7 @@ CONFIG += $(shell pkg-config poppler poppler-glib --cflags)
 LIBS   += $(shell pkg-config poppler poppler-glib --libs)
 
 CXXOPT = -Wall -Wno-invalid-offsetof -O3 -fPIC -DPOPPLERPLUGIN \
-				 -fdiagnostics-color=auto -g -std=c++11
+				 -fdiagnostics-color=auto #-g -std=c++11
 
 ifneq (,$(findstring Linux,$(shell uname)))
 	AVG_LIB_PATH = $(shell python -c "import os;import libavg;print os.path.dirname(libavg.__file__)" 2>/dev/null)
