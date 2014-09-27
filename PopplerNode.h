@@ -61,8 +61,10 @@ public:
               const string  getDocumentSubject()  const;
               const string  getPageText(page_index_t)  const;
 
+                  py::list  getPageImages(page_index_t) const;
                   py::list  getPageTextLayout(page_index_t) const;
                   py::list  getPageAnnotations(page_index_t) const;
+
                       bool  loadDocument();
                       void  setCurrentPage(page_index_t);
                       void  setupContext();

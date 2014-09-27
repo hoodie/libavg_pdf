@@ -152,6 +152,30 @@ getPageText(page_index_t page_index) const
 
 py::list
 PopplerNode::
+getPageImages(page_index_t page_index) const
+{
+  PopplerPage* page = m_vPages[page_index];
+  GList* lptr;
+  GList* mapping_list = poppler_page_get_image_mapping(page);
+  py::list list;  
+
+  for (lptr = mapping_list; lptr; lptr = lptr->next)
+  {
+    PopplerImageMapping* mapping = (PopplerImageMapping*)lptr->data;
+    PopplerRectangle rect = mapping->area;
+    unsigned int image_id = mapping->image_id;
+    cout << "image_id: " << image_id << endl;
+    list.append( boxFromPopplerRectangle(rect));
+  }
+
+  poppler_page_free_image_mapping(mapping_list);
+  return list;
+
+}
+
+
+py::list
+PopplerNode::
 getPageTextLayout(page_index_t index) const
 {
   
@@ -161,17 +185,17 @@ getPageTextLayout(page_index_t index) const
   guint n_rectangles; 
   poppler_page_get_text_layout(page, &rectangles, &n_rectangles);
   
-  py::list plist;
+  py::list list;
   for (guint i =0 ; i< n_rectangles; ++i){
     Box box = boxFromPopplerRectangle(rectangles[i]);
     box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &rectangles[i] );
     box.height *= -1;
-    plist.append<_Box>(box);
+    list.append<_Box>(box);
   }
 
   g_free(rectangles);
   
-  return plist;
+  return list;
 }
 
 const _Box
@@ -212,17 +236,17 @@ getPageAnnotations(page_index_t index) const
 
   GList* lptr;
   GList* mapping_list = poppler_page_get_annot_mapping(page);
-  py::list plist;  
+  py::list list;  
 
   for (lptr = mapping_list; lptr; lptr = lptr->next)
   {
     Annotation a;
     
 
-    PopplerAnnotMapping* map = (PopplerAnnotMapping*)lptr->data;
-    PopplerAnnot* pannot     = map->annot;
+    PopplerAnnotMapping* mapping = (PopplerAnnotMapping*)lptr->data;
+    PopplerAnnot* pannot     = mapping->annot;
     PopplerColor* pcolor     = poppler_annot_get_color(pannot);
-    PopplerRectangle rect    = map->area;
+    PopplerRectangle rect    = mapping->area;
     
     PopplerAnnotType type = poppler_annot_get_annot_type(pannot);
     if( poppler_annot_get_annot_type(pannot) != POPPLER_ANNOT_HIGHLIGHT and
@@ -247,11 +271,12 @@ getPageAnnotations(page_index_t index) const
     a.box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &new_rect );
     a.color       = Pixel32(pcolor->red ,pcolor->green,pcolor->blue);
     
-    plist.append( a );
+    list.append( a );
     
   }
+  poppler_page_free_annot_mapping(mapping_list);
   
-  return plist;
+  return list;
 }
 
 bool
@@ -387,23 +412,6 @@ resize(page_index_t page_index, double width = 0, double height = 0)
   //clog << "resizing to " << width << ", " << height;
   fill_bitmap(page_index, width, height);
 }
-
-//void
-//PopplerNode::
-//remove_all_annotations(PopplerPage* page)
-//{
-//  GList* lptr;
-//  GList* mapping_list = poppler_page_get_annot_mapping(page);
-//  py::list plist;  
-//
-//  for (lptr = mapping_list; lptr; lptr = lptr->next)
-//  {
-//    PopplerAnnotMapping* map = (PopplerAnnotMapping*)lptr->data;
-//    PopplerAnnot* pannot     = map->annot;
-//    poppler_page_remove_annot(page, pannot);
-//  }
-//
-//}
 
 void
 PopplerNode::

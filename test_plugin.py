@@ -19,7 +19,6 @@ if path == None:
   exit
   
 popNode = libavg.PopplerNode(path = path)
-print popNode.size
 
 
 class MyMainDiv(app.MainDiv):
@@ -82,8 +81,17 @@ def start():
     appapp.run(MyMainDiv())
 
 if "annots" in sys.argv:
+    print "ANNOTS"
     annots = popNode.getPageAnnotations(0)
     print annots
+
+elif "images" in sys.argv:
+    print "IMAGES"
+    images = popNode.getPageImages(0)
+    for image in images:
+        print "x:{x} y:{y}".format(x = image.x, y = image.y)
+        print "width:{width} height:{height}".format(width = image.width, height = image.height)
+
 
 elif "start" in sys.argv:
     start()

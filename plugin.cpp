@@ -34,12 +34,6 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .add_property("width",  &Box::width)
     .add_property("height", &Box::height);
     
-  //class_<_Color>("Color") // from wrapper.h
-  //  .add_property("red",    &Color::red  )
-  //  .add_property("green",  &Color::green)
-  //  .add_property("blue",   &Color::blue );
-    
-
   class_<PopplerNode, bases<RasterNode>, boost::noncopyable>("PopplerNode", no_init)
     .def( "__init__", raw_constructor(createNode<popplerNodeName>) )
     .def( "next",               &PopplerNode::getPopplerVersion)
@@ -48,6 +42,7 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "getPageLayout",      &PopplerNode::getPageTextLayout)
     .def( "getPageSize",        &PopplerNode::getPageSize)
     .def( "getPageAnnotations", &PopplerNode::getPageAnnotations)
+    .def( "getPageImages",      &PopplerNode::getPageImages)
     .def( "getPageCount",       &PopplerNode::getPageCount )
     .def( "getCurrentPage",     &PopplerNode::getCurrentPage)
     .def( "setCurrentPage",     &PopplerNode::setCurrentPage)
