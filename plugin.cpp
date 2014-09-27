@@ -16,9 +16,6 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .add_property("x1", &PopplerRectangle::x1).add_property("x2", &PopplerRectangle::x2)
     .add_property("y1", &PopplerRectangle::y1).add_property("y2", &PopplerRectangle::y2);
       
-  class_<avg::Pixel32>("Pixel32")
-    .add_property("string", &avg::Pixel32::getColorString);
-
   class_<_Annotation>("Annotation") // from wrapper.h
     .add_property("area",       &Annotation::area)  
     .add_property("name",       &Annotation::name)  
