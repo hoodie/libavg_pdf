@@ -28,12 +28,12 @@ class MyMainDiv(app.MainDiv):
         self.backNode = libavg.RectNode( fillcolor = "FFFFFF", size = libavg.Point2D(200,200), fillopacity = 1) 
         self.appendChild( self.backNode )
         self.appendChild( self.popNode )
+        popNode.size = libavg.Point2D(200,200)  # TODO render PopplerNode without settings size first
+        popNode.setCurrentPage(0)
         popNode.rerender()
-        #popNode.setCurrentPage(0)
-        
+
         self.backNode.size = self.popNode.size
         print self.backNode.size
-
 
         app.keyboardmanager.bindKeyDown("v", self.handle_vers, help, modifiers=libavg.KEYMOD_NONE)
         app.keyboardmanager.bindKeyDown("j", self.handle_next, help, modifiers=libavg.KEYMOD_NONE)
@@ -42,6 +42,13 @@ class MyMainDiv(app.MainDiv):
         app.keyboardmanager.bindKeyDown("i", self.handle_incr, help, modifiers=libavg.KEYMOD_NONE)
         app.keyboardmanager.bindKeyDown("d", self.handle_decr, help, modifiers=libavg.KEYMOD_NONE)
         app.keyboardmanager.bindKeyDown("t", self.handle_test, help, modifiers=libavg.KEYMOD_NONE)
+
+        app.keyboardmanager.bindKeyDown("f", self.show_figure, help, modifiers=libavg.KEYMOD_NONE)
+
+    def show_figure(self):
+        imageNode = libavg.ImageNode()
+        imageNode.setBitmap( popNode.getPageImage(0,0) )
+        self.appendChild(imageNode)
         
     def handle_test(self):
       self.popNode.rerender()
@@ -85,6 +92,10 @@ if "annots" in sys.argv:
     annots = popNode.getPageAnnotations(0)
     print annots
 
+elif "image" in sys.argv:
+    image = popNode.getPageImage(0,0)
+    print image
+    
 elif "images" in sys.argv:
     print "IMAGES"
     images = popNode.getPageImages(0)

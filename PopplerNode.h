@@ -61,10 +61,11 @@ public:
               const string  getDocumentSubject()      const ;
               const string  getPageText(page_index_t) const ;
 
-        const     IntPoint  getPageSize(page_index_t)        const;
-                  py::list  getPageImages(page_index_t)      const;
+                  IntPoint  getPageSize(page_index_t)        const;
                   py::list  getPageTextLayout(page_index_t)  const;
                   py::list  getPageAnnotations(page_index_t) const;
+                  py::list  getPageImages(page_index_t)      const;
+                 BitmapPtr  getPageImage(page_index_t page_index, unsigned int image_id) const;
 
 // helpers and converters
                 const _Box  boxFromPopplerRectangle(PopplerRectangle) const;
@@ -72,6 +73,7 @@ public:
 
                       bool  loadDocument();
                       void  setCurrentPage(page_index_t);
+                 BitmapPtr  surface_to_bitmap(cairo_surface_t*) const;
                       void  fill_bitmap(page_index_t, double width, double height);
                       void  resize(page_index_t, double width, double height);
                       void  rerender();

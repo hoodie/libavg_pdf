@@ -134,7 +134,7 @@ const string PopplerNode::getDocumentAuthor()  const { return poppler_document_g
 const string PopplerNode::getDocumentSubject() const { return poppler_document_get_subject(m_pDocument); }
 const string PopplerNode::getPageText(page_index_t page_index) const { return poppler_page_get_text(m_vPages[page_index]); }
 
-const IntPoint
+IntPoint
 PopplerNode::
 getPageSize(page_index_t index) const
 {
@@ -144,30 +144,6 @@ getPageSize(page_index_t index) const
   // TODO find alternative to IntPoint that takes doubles etc
   return IntPoint(width,height);
 }
-
-py::list
-PopplerNode::
-getPageImages(page_index_t page_index) const
-{
-  PopplerPage* page = m_vPages[page_index];
-  GList* lptr;
-  GList* mapping_list = poppler_page_get_image_mapping(page);
-  py::list list;  
-
-  for (lptr = mapping_list; lptr; lptr = lptr->next)
-  {
-    PopplerImageMapping* mapping = (PopplerImageMapping*)lptr->data;
-    PopplerRectangle rect = mapping->area;
-    unsigned int image_id = mapping->image_id;
-    cout << "image_id: " << image_id << endl;
-    list.append( boxFromPopplerRectangle(rect));
-  }
-
-  poppler_page_free_image_mapping(mapping_list);
-  return list;
-
-}
-
 
 py::list
 PopplerNode::
@@ -245,6 +221,40 @@ getPageAnnotations(page_index_t index) const
   poppler_page_free_annot_mapping(mapping_list);
   
   return list;
+}
+
+py::list
+PopplerNode::
+getPageImages(page_index_t page_index) const
+{
+  PopplerPage* page = m_vPages[page_index];
+  GList* lptr;
+  GList* mapping_list = poppler_page_get_image_mapping(page);
+  py::list list;  
+
+  for (lptr = mapping_list; lptr; lptr = lptr->next)
+  {
+    PopplerImageMapping* mapping = (PopplerImageMapping*)lptr->data;
+    PopplerRectangle rect = mapping->area;
+    unsigned int image_id = mapping->image_id;
+    cout << "image_id: " << image_id << endl;
+    list.append( boxFromPopplerRectangle(rect));
+  }
+
+  poppler_page_free_image_mapping(mapping_list);
+  return list;
+
+}
+
+
+BitmapPtr
+PopplerNode::
+getPageImage(page_index_t page_index, unsigned int image_id) const
+{
+  PopplerPage* page = m_vPages[page_index];
+  cairo_surface_t* surface = poppler_page_get_image(page, image_id);
+  BitmapPtr bitmap = surface_to_bitmap(surface);
+  return bitmap;
 }
 
 
@@ -335,6 +345,25 @@ setCurrentPage(page_index_t page_index)
     resize(page_index, 0,0);
 }
 
+
+BitmapPtr
+PopplerNode::
+surface_to_bitmap(cairo_surface_t* surface) const
+{
+  cairo_surface_flush(surface); // TODO perhaps not necessary
+  unsigned char* data = cairo_image_surface_get_data(surface);
+  int stride          = cairo_image_surface_get_stride(surface);
+  double width        = cairo_image_surface_get_width(surface);
+  double height       = cairo_image_surface_get_height(surface);
+
+  IntPoint size = IntPoint(width, height);
+  BitmapPtr bitmap = BitmapPtr(
+    new avg::Bitmap(size, m_pPixelFormat, data, stride, true)
+  );
+  cairo_surface_destroy(surface);
+  return bitmap;
+}
+
 void
 PopplerNode::
 fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
@@ -343,8 +372,8 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   PopplerPage* page = m_vPages[page_index];
   
   //std::clog << "--- fill_bitmap()" << endl;
-  cairo_surface_t *surface;
-  cairo_t *cairo;
+  cairo_surface_t* surface;
+  cairo_t* cairo;
 
   IntPoint size = IntPoint(width, height);
   if (width == 0 or height==0)

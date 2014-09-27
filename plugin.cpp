@@ -45,7 +45,8 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "getPageSize",        &PopplerNode::getPageSize)
     .def( "getPageAnnotations", &PopplerNode::getPageAnnotations)
     .def( "getPageImages",      &PopplerNode::getPageImages)
-    .def( "getPageCount",       &PopplerNode::getPageCount )
+    .def( "getPageImage",       &PopplerNode::getPageImage)
+    .def( "getPageCount",       &PopplerNode::getPageCount)
     .def( "getCurrentPage",     &PopplerNode::getCurrentPage)
     .def( "setCurrentPage",     &PopplerNode::setCurrentPage)
     
