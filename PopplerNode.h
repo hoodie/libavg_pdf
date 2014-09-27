@@ -56,32 +56,32 @@ public:
                  const int  getPageCount()        const;
         const page_index_t  getCurrentPage()      const;
 
-              const string  getDocumentTitle()    const;
-              const string  getDocumentAuthor()   const;
-              const string  getDocumentSubject()  const;
-              const string  getPageText(page_index_t)  const;
+              const string  getDocumentTitle()        const ;
+              const string  getDocumentAuthor()       const ;
+              const string  getDocumentSubject()      const ;
+              const string  getPageText(page_index_t) const ;
 
-                  py::list  getPageImages(page_index_t) const;
-                  py::list  getPageTextLayout(page_index_t) const;
+        const     IntPoint  getPageSize(page_index_t)        const;
+                  py::list  getPageImages(page_index_t)      const;
+                  py::list  getPageTextLayout(page_index_t)  const;
                   py::list  getPageAnnotations(page_index_t) const;
+
+// helpers and converters
+                const _Box  boxFromPopplerRectangle(PopplerRectangle) const;
+    const PopplerRectangle  popplerRectangleFromBox(Box) const;
 
                       bool  loadDocument();
                       void  setCurrentPage(page_index_t);
-                      void  setupContext();
                       void  fill_bitmap(page_index_t, double width, double height);
-                      void  lookup_bitmap(page_index_t);
                       void  resize(page_index_t, double width, double height);
                       void  rerender();
                     //void  remove_all_annotations(PopplerPage*);
 
-                const _Box  boxFromPopplerRectangle(PopplerRectangle) const;
-    const PopplerRectangle  popplerRectangleFromBox(Box) const;
-                  IntPoint  getPageSize(page_index_t) const;
-
-          // RasterNode overwrites
-              virtual void  render();
-              virtual void  preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity);
-              virtual void  connectDisplay();
+// RasterNode setup
+                      void  connectDisplay();
+                      void  preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffectiveOpacity);
+                      void  setupContext();
+                      void  render();
 
 private:
           avg::PixelFormat  m_pPixelFormat;

@@ -96,13 +96,15 @@ getPath() const
 
 void
 PopplerNode::
-setRenderAnnotations(bool render_annots) {
+setRenderAnnotations(bool render_annots)
+{
   m_bRenderAnnotations = render_annots;
 }
 
 const bool
 PopplerNode::
-getRenderAnnotations() const{
+getRenderAnnotations() const
+{
   return m_bRenderAnnotations;
 }
 
@@ -127,7 +129,12 @@ getCurrentPage() const
   return m_iCurrentPage;
 }
 
-IntPoint
+const string PopplerNode::getDocumentTitle() const { return poppler_document_get_title(m_pDocument); }
+const string PopplerNode::getDocumentAuthor()  const { return poppler_document_get_author(m_pDocument); }
+const string PopplerNode::getDocumentSubject() const { return poppler_document_get_subject(m_pDocument); }
+const string PopplerNode::getPageText(page_index_t page_index) const { return poppler_page_get_text(m_vPages[page_index]); }
+
+const IntPoint
 PopplerNode::
 getPageSize(page_index_t index) const
 {
@@ -136,18 +143,6 @@ getPageSize(page_index_t index) const
   poppler_page_get_size(page, &width, &height);
   // TODO find alternative to IntPoint that takes doubles etc
   return IntPoint(width,height);
-}
-
-const string PopplerNode::getDocumentTitle()   const { return poppler_document_get_title(m_pDocument); }
-const string PopplerNode::getDocumentAuthor()  const { return poppler_document_get_author(m_pDocument); }
-const string PopplerNode::getDocumentSubject() const { return poppler_document_get_subject(m_pDocument); }
-
-const
-string
-PopplerNode::
-getPageText(page_index_t page_index) const
-{
-  return poppler_page_get_text(m_vPages[page_index]) ;
 }
 
 py::list
@@ -197,33 +192,6 @@ getPageTextLayout(page_index_t index) const
   
   return list;
 }
-
-const _Box
-PopplerNode::
-boxFromPopplerRectangle(PopplerRectangle rect) const
-{
-  Box box;
-  box.x = rect.x1;
-  box.y = rect.y2;
-  box.x2 = rect.x2;
-  box.y2 = rect.y1;
-  box.width  = abs(rect.x2 - rect.x1);
-  box.height = abs(rect.y2 - rect.y1);
-  return box;
-}
-
-const PopplerRectangle
-PopplerNode::
-popplerRectangleFromBox(Box box) const
-{
-  PopplerRectangle rect;
-  rect.x1 = box.x;
-  rect.y1 = box.y + box.height;
-  rect.x2 = box.x + box.width;
-  rect.y2 = box.y;
-  return rect;
-}
-
 
 py::list
 PopplerNode::
@@ -279,6 +247,39 @@ getPageAnnotations(page_index_t index) const
   return list;
 }
 
+
+
+// helpers and converters
+const _Box
+PopplerNode::
+boxFromPopplerRectangle(PopplerRectangle rect) const
+{
+  Box box;
+  box.x = rect.x1;
+  box.y = rect.y2;
+  box.x2 = rect.x2;
+  box.y2 = rect.y1;
+  box.width  = abs(rect.x2 - rect.x1);
+  box.height = abs(rect.y2 - rect.y1);
+  return box;
+}
+
+const PopplerRectangle
+PopplerNode::
+popplerRectangleFromBox(Box box) const
+{
+  PopplerRectangle rect;
+  rect.x1 = box.x;
+  rect.y1 = box.y + box.height;
+  rect.x2 = box.x + box.width;
+  rect.y2 = box.y;
+  return rect;
+}
+
+
+
+
+//bootstrapping
 bool
 PopplerNode::
 loadDocument()
@@ -314,6 +315,24 @@ loadDocument()
   }
 
   return true;
+}
+
+void
+PopplerNode::
+setCurrentPage(page_index_t page_index)
+{
+  if(page_index < 0 or page_index >= m_iPageCount){
+    cerr << "page_index out of bound" << endl;
+    return ;
+  }
+  m_iCurrentPage = page_index;
+  if(m_vPageBitmaps.at(page_index) != NULL){
+    m_pBitmap = m_vPageBitmaps.at(page_index);
+    m_bNewBmp = true;
+  }
+  
+  else
+    resize(page_index, 0,0);
 }
 
 void
@@ -376,23 +395,6 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   cairo_surface_destroy(surface);
 }
 
-void
-PopplerNode::
-setCurrentPage(page_index_t page_index)
-{
-  if(page_index < 0 or page_index >= m_iPageCount){
-    cerr << "page_index out of bound" << endl;
-    return ;
-  }
-  m_iCurrentPage = page_index;
-  if(m_vPageBitmaps.at(page_index) != NULL){
-    m_pBitmap = m_vPageBitmaps.at(page_index);
-    m_bNewBmp = true;
-  }
-  
-  else
-    resize(page_index, 0,0);
-}
 
 void
 PopplerNode::
@@ -420,17 +422,11 @@ rerender()
   resize(getCurrentPage(), AreaNode::getSize().x, AreaNode::getSize().y);
 }
 
-void
-PopplerNode::
-setupContext()
-{
-  bool bMipmap = getMaterial().getUseMipmaps();
-  m_pTex    = GLContextManager::get()->createTexture(m_pNodeSize, m_pPixelFormat, bMipmap);
-  getSurface()->create(m_pPixelFormat,m_pTex);
-  newSurface();
-  setupFX();
-}
 
+
+
+
+// RasterNode setup
 void
 PopplerNode::
 connectDisplay()
@@ -459,5 +455,21 @@ preRender(const VertexArrayPtr& pVA, bool bIsParentActive, float parentEffective
   calcVertexArray(pVA);
 }
 
-  // TODO remove render() and renderFX() as soonn as libavg permits
-void PopplerNode:: render()   { blt32(); }
+void
+PopplerNode::
+setupContext()
+{
+  bool bMipmap = getMaterial().getUseMipmaps();
+  m_pTex    = GLContextManager::get()->createTexture(m_pNodeSize, m_pPixelFormat, bMipmap);
+  getSurface()->create(m_pPixelFormat,m_pTex);
+  newSurface();
+  setupFX();
+}
+
+void
+PopplerNode::
+render()
+{
+  blt32();
+}
+
