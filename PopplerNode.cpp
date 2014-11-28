@@ -227,17 +227,37 @@ py::list
 PopplerNode::
 getPageImages(page_index_t page_index) const
 {
+// TODO finish getPageImages()
+  PopplerPage* page = m_vPages[page_index];
+  GList* mapping_list = poppler_page_get_image_mapping(page);
+  py::list list;  
+
+  guint length = g_list_length(mapping_list);
+
+  for (guint i = 0; i<length; ++i)
+  {
+    list.append( getPageImage(page_index, i) );
+  }
+
+  poppler_page_free_image_mapping(mapping_list);
+
+  return list;
+}
+
+py::list
+PopplerNode::
+getPageImageMappings(page_index_t page_index) const
+{
+// TODO finish getPageImages()
   PopplerPage* page = m_vPages[page_index];
   GList* lptr;
   GList* mapping_list = poppler_page_get_image_mapping(page);
-  py::list list;  
+  py::list list;
 
   for (lptr = mapping_list; lptr; lptr = lptr->next)
   {
     PopplerImageMapping* mapping = (PopplerImageMapping*)lptr->data;
     PopplerRectangle rect = mapping->area;
-    unsigned int image_id = mapping->image_id;
-    cout << "image_id: " << image_id << endl;
     list.append( boxFromPopplerRectangle(rect));
   }
 

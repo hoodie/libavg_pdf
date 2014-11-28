@@ -64,6 +64,7 @@ public:
                   IntPoint  getPageSize(page_index_t)        const;
                   py::list  getPageTextLayout(page_index_t)  const;
                   py::list  getPageAnnotations(page_index_t) const;
+                  py::list  getPageImageMappings(page_index_t)      const;
                   py::list  getPageImages(page_index_t)      const;
                  BitmapPtr  getPageImage(page_index_t page_index, unsigned int image_id) const;
 
