@@ -32,6 +32,10 @@ class MyMainDiv(app.MainDiv):
         popNode.setCurrentPage(0)
         popNode.rerender()
 
+        inode = libavg.ImageNode()
+        inode.setBitmap(popNode.getPageImage(0,0))
+        self.appendChild( inode )
+
         self.backNode.size = self.popNode.size
         print self.backNode.size
 
@@ -98,7 +102,7 @@ elif "image" in sys.argv:
     
 elif "images" in sys.argv:
     print "IMAGES"
-    images = popNode.getPageImages(0)
+    images = popNode.getPageImageFrames(0)
     for image in images:
         print "x:{x} y:{y}".format(x = image.x, y = image.y)
         print "width:{width} height:{height}".format(width = image.width, height = image.height)

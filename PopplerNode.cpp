@@ -248,9 +248,8 @@ getPageImages(page_index_t page_index) const
 
 py::list
 PopplerNode::
-getPageImageMappings(page_index_t page_index) const
+getPageImageFrames(page_index_t page_index) const
 {
-// TODO finish getPageImages()
   PopplerPage* page = m_vPages[page_index];
   GList* lptr;
   GList* mapping_list = poppler_page_get_image_mapping(page);
@@ -260,7 +259,18 @@ getPageImageMappings(page_index_t page_index) const
   {
     PopplerImageMapping* mapping = (PopplerImageMapping*)lptr->data;
     PopplerRectangle rect = mapping->area;
+
+    //double width, height;
+    //poppler_page_get_size(page, &width, &height);
+
+    //PopplerRect new_rect;
+    //new_rect.x1 = rect.x1;
+    //new_rect.x2 = rect.x2;
+    //new_rect.y1 = abs(height - rect.y1);
+    //new_rect.y2 = abs(height - rect.y2);
+    //list.append( boxFromPopplerRectangle(new_rect));
     list.append( boxFromPopplerRectangle(rect));
+
   }
 
   poppler_page_free_image_mapping(mapping_list);

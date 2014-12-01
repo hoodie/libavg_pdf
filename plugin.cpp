@@ -44,7 +44,7 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "getPageLayout",      &PopplerNode::getPageTextLayout)
     .def( "getPageSize",        &PopplerNode::getPageSize)
     .def( "getPageAnnotations", &PopplerNode::getPageAnnotations)
-    .def( "getPageImageMappings",  &PopplerNode::getPageImageMappings)
+    .def( "getPageImageFrames", &PopplerNode::getPageImageFrames)
     .def( "getPageImages",      &PopplerNode::getPageImages)
     .def( "getPageImage",       &PopplerNode::getPageImage)
     .def( "getPageCount",       &PopplerNode::getPageCount)

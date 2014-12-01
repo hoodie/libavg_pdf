@@ -34,6 +34,7 @@ class PdfNode(DivNodePlus):
         self.__layoutsNode   = None
         self.__annotsNode    = None
         self.__popplerNode   = None
+        self.__framesNode    = None
         self.__highlightNode = None
         self.__drag_start    = None
 
@@ -161,6 +162,7 @@ class PdfNode(DivNodePlus):
                 self.__annotsNode   = self.__getAnnotsNode(page_index)
                 self.appendChild(self.__annotsNode)
 
+
             if self.__show_Back:
                 if self.__backNode:
                     self.removeChild(self.__backNode)
@@ -172,6 +174,12 @@ class PdfNode(DivNodePlus):
                     self.removeChild(self.__layoutsNode)
                 self.__layoutsNode  = self.__renderLayouts(page_index)
                 self.appendChild(self.__layoutsNode)
+
+            if True:
+                if self.__framesNode != None:
+                    self.removeChild(self.__framesNode)
+                self.__framesNode = self.__renderImageFrames(page_index)
+                self.appendChild(self.__framesNode)
 
             # adapt z-index
             self.reorderChild(self.__popplerNode, self.getNumChildren()-1)
@@ -239,6 +247,23 @@ class PdfNode(DivNodePlus):
 
         return annotNode
 
+    def __renderImageFrames(self,page_index):
+        framesNode = DivNodePlus()
+
+        mappings = self.__popplerNode.getPageImageFrames(page_index)
+        for box in mappings:
+            print
+            print "printing image frame", box, self.scale
+            libavg.RectNode(
+                pos = libavg.Point2D( box.x, box.y)*self.scale,
+                size = libavg.Point2D( box.width, -box.height )*self.scale,
+                color = "ff0000", opacity = 1,
+                fillcolor = "FF55FF", fillopacity = 1,
+                parent = framesNode) 
+
+        return framesNode
+
+
     def __renderLayouts(self,page_index):
         print  "    PdfNode::__renderLayouts({0}) # size = {1}".format(page_index, self.size)
         #print "       {0}".format( self.__popplerNode.getPageSize(page_index))
@@ -252,8 +277,8 @@ class PdfNode(DivNodePlus):
                     size = libavg.Point2D( layout.width, layout.height ),
                     color = "000000", opacity = 1,
                     fillcolor = "FF55FF", fillopacity = .1,
-                    parent = layoutsNode
-                    )
+                    parent = layoutsNode)
+
         layoutsNode.size = self.size
         layoutsNode.tell_resizeChildren = True
         return layoutsNode
