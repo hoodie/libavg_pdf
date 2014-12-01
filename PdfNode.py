@@ -37,7 +37,6 @@ class PdfNode(DivNodePlus):
         self.__highlightNode = None
         self.__drag_start    = None
 
-
         self.__show_Back     = True
         self.__show_Layout   = False # debug only
         self.__show_Annots   = show_annotations
@@ -52,6 +51,8 @@ class PdfNode(DivNodePlus):
             self.__popplerstyle_path  = self.__path
             self.__popplerNode = PopplerNode(path = self.__popplerstyle_path)
             self.__popplerNode.render_annots = False
+            self.appendChild(self.__popplerNode)
+
         else:
             print "path {0} does not exist".format(path)
 
@@ -149,9 +150,6 @@ class PdfNode(DivNodePlus):
 
     def __setupPage(self, page_index = -1):
         print "    PdfNode::__setupPage({0})".format(page_index)
-
-        # TODO test with different page sizes in one document
-        self.appendChild(self.__popplerNode) # FIXME if this fails put it beck into setup
 
         if 0 <= page_index and page_index < self.__popplerNode.getPageCount():
 
