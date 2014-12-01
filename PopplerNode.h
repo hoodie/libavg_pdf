@@ -67,6 +67,7 @@ public:
                   py::list  getPageImageMappings(page_index_t)      const;
                   py::list  getPageImages(page_index_t)      const;
                  BitmapPtr  getPageImage(page_index_t page_index, unsigned int image_id) const;
+                 BitmapPtr  renderPageBitmap(page_index_t, double, double, bool) const;
 
 // helpers and converters
                 const _Box  boxFromPopplerRectangle(PopplerRectangle) const;
@@ -75,8 +76,8 @@ public:
                       bool  loadDocument();
                       void  setCurrentPage(page_index_t);
                  BitmapPtr  surface_to_bitmap(cairo_surface_t*) const;
-                      void  fill_bitmap(page_index_t, double width, double height);
-                      void  resize(page_index_t, double width, double height);
+                      void  fill_main_bitmap();
+                      void  resize(double width, double height);
                       void  rerender();
                     //void  remove_all_annotations(PopplerPage*);
 

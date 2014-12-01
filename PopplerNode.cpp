@@ -150,11 +150,13 @@ PopplerNode::
 getPageTextLayout(page_index_t index) const
 {
   
+  printf("getPageTextLayout()");
   PopplerPage* page = m_vPages[index];
   
   PopplerRectangle* rectangles; 
   guint n_rectangles; 
   poppler_page_get_text_layout(page, &rectangles, &n_rectangles);
+  printf("getPageTextLayout items %i", n_rectangles);
   
   py::list list;
   for (guint i =0 ; i< n_rectangles; ++i){
@@ -277,8 +279,6 @@ getPageImage(page_index_t page_index, unsigned int image_id) const
   return bitmap;
 }
 
-
-
 // helpers and converters
 const _Box
 PopplerNode::
@@ -362,7 +362,7 @@ setCurrentPage(page_index_t page_index)
   }
   
   else
-    resize(page_index, 0,0);
+    fill_main_bitmap();
 }
 
 
@@ -384,27 +384,15 @@ surface_to_bitmap(cairo_surface_t* surface) const
   return bitmap;
 }
 
-void
+BitmapPtr
 PopplerNode::
-fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
+renderPageBitmap(page_index_t page_index, double width, double height, bool render_annotations = false) const
 {
-  
-  PopplerPage* page = m_vPages[page_index];
-  
-  //std::clog << "--- fill_bitmap()" << endl;
-  cairo_surface_t* surface;
-  cairo_t* cairo;
+  PopplerPage*      page     = m_vPages[page_index];
+  cairo_surface_t*  surface;
+  cairo_t*          cairo;
 
   IntPoint size = IntPoint(width, height);
-  if (width == 0 or height==0)
-    size = m_pNodeSize;
-  else {
-    m_pNodeSize = size;
-    m_bNewSize  = true;
-    //std::clog << "setting new size: " << width << " ," << height << endl;
-  }
-
-
   double pwidth, pheight;
   double xscale, yscale;
   poppler_page_get_size(page, &pwidth, &pheight);
@@ -415,12 +403,10 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   // TODO save a few microseconds using: cairo_image_surface_create_for_data()
   cairo   = cairo_create(surface);
   
-  //clog << "xscale: " << xscale << endl;
   cairo_scale(cairo, xscale,yscale);
-
   //remove_all_annotations(page);
 
-  if(m_bRenderAnnotations)
+  if(render_annotations)
     poppler_page_render( page, cairo );
   else
     poppler_page_render_for_printing_with_options( page, cairo, POPPLER_PRINT_DOCUMENT );
@@ -429,46 +415,48 @@ fill_bitmap(page_index_t page_index, double width = 0, double height= 0)
   cairo_set_source_rgba(cairo, 1., 0., 0., 0.);
   cairo_paint(cairo);
 
-  cairo_surface_flush(surface);
-  unsigned char* data = cairo_image_surface_get_data(surface);
-  int stride          = cairo_image_surface_get_stride(surface);
-  m_pBitmap           = avg::BitmapPtr(
-    new avg::Bitmap(size, m_pPixelFormat, data, stride, true)
-  );
-  
-  m_vPageBitmaps.at(page_index) = m_pBitmap;
-  
-  m_bNewBmp           = true;
-
   cairo_destroy(cairo);
-  cairo_surface_destroy(surface);
+  return surface_to_bitmap(surface);
 }
 
 
 void
 PopplerNode::
-resize(page_index_t page_index, double width = 0, double height = 0)
+fill_main_bitmap()
 {
-  if(page_index < 0 or page_index >= m_iPageCount)
-    return;
-  //clog << "rerendering page: " << page_index << endl;
+  double width  = m_pNodeSize.x;
+  double height = m_pNodeSize.y;
+  m_pBitmap = renderPageBitmap(getCurrentPage(), width, height, m_bRenderAnnotations);
+  m_vPageBitmaps.at(getCurrentPage()) = m_pBitmap;
   
-  if (width != 0 and height!=0)
+  m_bNewBmp = true;
+}
+
+
+void
+PopplerNode::
+// changes m_pNodeSize and causes rerendering if necessary
+resize(double width = 0, double height = 0)
+{
+  if((width != 0 and height!=0) and (width != m_pNodeSize.x and height != m_pNodeSize.y))
   {
-    //clog << "resetting bitmap cache ";
+    // clear bitmap cache
     m_vPageBitmaps.clear();
-    m_vPageBitmaps = std::vector<avg::BitmapPtr>(m_iPageCount);
+    m_vPageBitmaps = std::vector<avg::BitmapPtr>(m_iPageCount); 
+    // settings new size
+    m_pNodeSize = IntPoint(width, height);
     m_bNewSize = true;
   }
-  //clog << "resizing to " << width << ", " << height;
-  fill_bitmap(page_index, width, height);
+  // render bitmap anew
+  if(m_bNewSize)
+    fill_main_bitmap();
 }
 
 void
 PopplerNode::
 rerender()
 {
-  resize(getCurrentPage(), AreaNode::getSize().x, AreaNode::getSize().y);
+  resize(AreaNode::getSize().x, AreaNode::getSize().y);
 }
 
 
