@@ -159,15 +159,18 @@ getPageTextLayout(page_index_t index) const
   printf("getPageTextLayout items %i", n_rectangles);
   
   py::list list;
-  for (guint i =0 ; i< n_rectangles; ++i){
-    Box box = boxFromPopplerRectangle(rectangles[i]);
-    box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &rectangles[i] );
-    box.height *= -1;
-    list.append<_Box>(box);
+  if(0<n_rectangles)
+  {
+    for (guint i =0 ; i< n_rectangles; ++i){
+      Box box = boxFromPopplerRectangle(rectangles[i]);
+      box.payload = poppler_page_get_selected_text( page, POPPLER_SELECTION_GLYPH, &rectangles[i] );
+      box.height *= -1;
+      list.append<_Box>(box);
+    }
+    g_free(rectangles);
   }
 
-  g_free(rectangles);
-  
+
   return list;
 }
 
@@ -236,12 +239,14 @@ getPageImages(page_index_t page_index) const
 
   guint length = g_list_length(mapping_list);
 
-  for (guint i = 0; i<length; ++i)
+  if(0<length)
   {
-    list.append( getPageImage(page_index, i) );
+    for (guint i = 0; i<length; ++i)
+    {
+      list.append( getPageImage(page_index, i) );
+    }
+    poppler_page_free_image_mapping(mapping_list);
   }
-
-  poppler_page_free_image_mapping(mapping_list);
 
   return list;
 }
