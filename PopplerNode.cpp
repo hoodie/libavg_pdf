@@ -150,13 +150,12 @@ PopplerNode::
 getPageTextLayout(page_index_t index) const
 {
   
-  printf("getPageTextLayout()");
   PopplerPage* page = m_vPages[index];
   
   PopplerRectangle* rectangles; 
   guint n_rectangles; 
   poppler_page_get_text_layout(page, &rectangles, &n_rectangles);
-  printf("getPageTextLayout items %i", n_rectangles);
+  //printf("getPageTextLayout(%i) -> %i items\n", index, n_rectangles);
   
   py::list list;
   if(0<n_rectangles)
