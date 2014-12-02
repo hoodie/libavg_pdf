@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os, time, math, cairo
 import libavg
 
@@ -49,8 +50,8 @@ class PdfNode(DivNodePlus):
 
         if path and os.path.exists(path):
             self.__path  = os.path.abspath(path)
-            self.__popplerstyle_path  = self.__path
-            self.__popplerNode = PopplerNode(path = self.__popplerstyle_path)
+            #TODO: teach popplernode unicode paths
+            self.__popplerNode = PopplerNode(path = str(self.__path))
             self.__popplerNode.render_annots = False
             self.appendChild(self.__popplerNode)
 
@@ -96,8 +97,14 @@ class PdfNode(DivNodePlus):
         imageNode = libavg.ImageNode()
         imageNode.setBitmap( self.__popplerNode.renderPageBitmap2(page_index))
         div = DivNodePlus()
-        div.appendChild(self.__renderBack(page_index))
+        div.appendChild(
+        libavg.RectNode(
+                fillcolor = self.background_color,
+                size = imageNode.size,
+                fillopacity = 1)
+        )
         div.appendChild(imageNode)
+
         return div
 
     def getPageImage(self, page_index = 0, image_index = 0):
@@ -110,6 +117,8 @@ class PdfNode(DivNodePlus):
 
     def getPageImages(self, page_index = 0):
         return self.__popplerNode.getPageImages(page_index)
+    def getPageImageFrames(self, page_index = 0):
+        return self.__popplerNode.getPageImageFrames(page_index)
 
     def getPageSize(self, page_index = 0):
         return self.__popplerNode.getPageSize(page_index)
