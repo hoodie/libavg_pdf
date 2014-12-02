@@ -64,10 +64,15 @@ public:
                   IntPoint  getPageSize(page_index_t)        const;
                   py::list  getPageTextLayout(page_index_t)  const;
                   py::list  getPageAnnotations(page_index_t) const;
-                  py::list  getPageImageFrames(page_index_t)      const;
+                  py::list  getPageImageFrames(page_index_t) const;
                   py::list  getPageImages(page_index_t)      const;
+
                  BitmapPtr  getPageImage(page_index_t page_index, unsigned int image_id) const;
+           cairo_surface_t* renderPageSurface(page_index_t, double, double, bool) const;
                  BitmapPtr  renderPageBitmap(page_index_t, double, double, bool) const;
+                 BitmapPtr  renderPageBitmap2(page_index_t) const;
+                   // void  renderPageRegionBitmap(page_index_t, _Box*, double, double, bool) const;
+              // BitmapPtr  renderPageRegionBitmap(page_index_t, _Box*, double, double, bool) const;
 
 // helpers and converters
                 const _Box  boxFromPopplerRectangle(PopplerRectangle) const;

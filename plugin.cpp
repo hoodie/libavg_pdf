@@ -41,6 +41,8 @@ BOOST_PYTHON_MODULE(popplerplugin) {
     .def( "next",               &PopplerNode::getPopplerVersion)
     .def( "rerender",           &PopplerNode::rerender)
     .def( "resize",             &PopplerNode::resize)
+    .def( "renderPageBitmap",   &PopplerNode::renderPageBitmap)
+    .def( "renderPageBitmap2",  &PopplerNode::renderPageBitmap2)
     .def( "getPageLayout",      &PopplerNode::getPageTextLayout)
     .def( "getPageSize",        &PopplerNode::getPageSize)
     .def( "getPageAnnotations", &PopplerNode::getPageAnnotations)

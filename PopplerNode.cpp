@@ -394,9 +394,9 @@ surface_to_bitmap(cairo_surface_t* surface) const
   return bitmap;
 }
 
-BitmapPtr
+cairo_surface_t*
 PopplerNode::
-renderPageBitmap(page_index_t page_index, double width, double height, bool render_annotations = false) const
+renderPageSurface(page_index_t page_index, double width, double height, bool render_annotations = false) const
 {
   PopplerPage*      page     = m_vPages[page_index];
   cairo_surface_t*  surface;
@@ -426,9 +426,37 @@ renderPageBitmap(page_index_t page_index, double width, double height, bool rend
   cairo_paint(cairo);
 
   cairo_destroy(cairo);
+  return surface;
+}
+
+BitmapPtr
+PopplerNode::
+renderPageBitmap2(page_index_t page_index) const
+{
+  IntPoint size = getPageSize(page_index);
+  double width = size.x;
+  double height = size.y;
+  bool render_annotations = false;
+  cairo_surface_t* surface = renderPageSurface(page_index, width, height, render_annotations);
   return surface_to_bitmap(surface);
 }
 
+BitmapPtr
+PopplerNode::
+renderPageBitmap(page_index_t page_index, double width, double height, bool render_annotations = false) const
+{
+  cairo_surface_t* surface = renderPageSurface(page_index, width, height, render_annotations);
+  return surface_to_bitmap(surface);
+}
+
+//void //BitmapPtr
+//PopplerNode::
+//renderPageRegionBitmap(page_index_t page_index, _Box* box, double width, double height, bool render_annotations = false) const
+//{
+//  //cairo_surface_t* surface = renderPageSurface(page_index, width, height, render_annotations);
+//  //cairo_t* cairo;
+//  //cairo = cairo_create(surface);
+//}
 
 void
 PopplerNode::

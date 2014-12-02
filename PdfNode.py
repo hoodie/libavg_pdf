@@ -2,7 +2,7 @@ import os, time, math, cairo
 import libavg
 
 from libavg  import gesture, DivNode, Publisher, avg
-from widgets import DivNodePlus
+from divnodeplus import DivNodePlus
 
 #TODO replace DivNodePlus
 #TODO use avg logging
@@ -91,6 +91,14 @@ class PdfNode(DivNodePlus):
     def next(self):
         self.__setupPage(self.currentPage + 1)
         self.__fitSize(  self.__popplerNode.size )
+
+    def getPage(self, page_index = 0):
+        imageNode = libavg.ImageNode()
+        imageNode.setBitmap( self.__popplerNode.renderPageBitmap2(page_index))
+        div = DivNodePlus()
+        div.appendChild(self.__renderBack(page_index))
+        div.appendChild(imageNode)
+        return div
 
     def getPageImage(self, page_index = 0, image_index = 0):
         return self.__popplerNode.getPageImage(page_index, image_index)
