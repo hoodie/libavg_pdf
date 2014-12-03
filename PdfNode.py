@@ -51,7 +51,7 @@ class PdfNode(DivNodePlus):
         if path and os.path.exists(path):
             self.__path  = os.path.abspath(path)
             #TODO: teach popplernode unicode paths
-            self.__popplerNode = PopplerNode(path = str(self.__path))
+            self.__popplerNode = PopplerNode(path = self.__path)
             self.__popplerNode.render_annots = False
             self.appendChild(self.__popplerNode)
 

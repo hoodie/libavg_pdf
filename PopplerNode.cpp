@@ -38,8 +38,8 @@ registerType()
   TypeDefinition
     def = TypeDefinition("popplernode", "rasternode",
         ExportedObject::buildObject<PopplerNode>)
-    .addArg( Arg<std::string>("path","",false,offsetof(PopplerNode,m_pRelPdfPath)) ) ;
-    //.addArg( Arg<std::string>("render_annots","",false,offsetof(PopplerNode,m_bRenderAnnotations)) ) ;
+    .addArg( Arg<avg::UTF8String>("path","",false,offsetof(PopplerNode,m_pRelPdfPath)) ) ;
+    //.addArg( Arg<avg::UTF8String>("render_annots","",false,offsetof(PopplerNode,m_bRenderAnnotations)) ) ;
   //.addArg(  Arg<string>("fillcolor",   "0F0F0F",  false,  offsetof(ColorNode,  m_sFillColorName) ));
 
     //const char* allowedParentNodeNames[] = {"avg", 0};
@@ -67,7 +67,7 @@ PopplerNode::PopplerNode(const ArgList& args)
   
   char longer_path [PATH_MAX+1];
   char* path = realpath(m_pRelPdfPath.c_str(), longer_path);
-  m_pPdfPath = std::string("file://").append(std::string(path));
+  m_pPdfPath = avg::UTF8String("file://").append(avg::UTF8String(path));
 
   m_bRenderAnnotations = true;
 
@@ -81,7 +81,7 @@ PopplerNode::PopplerNode(const ArgList& args)
 
 void
 PopplerNode::
-setPath(std::string path)
+setPath(avg::UTF8String path)
 {
   m_pPdfPath = path;
 }

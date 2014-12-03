@@ -47,7 +47,7 @@ public:
          virtual ~PopplerNode();
          
 // PopplerNodes Own
-                      void  setPath(std::string);
+                      void  setPath(avg::UTF8String);
               const string  getPath()             const;
                       void  setRenderAnnotations(bool);
                 const bool  getRenderAnnotations()const;
@@ -96,8 +96,8 @@ private:
           avg::PixelFormat  m_pPixelFormat;
            PopplerDocument* m_pDocument;
               MCTexturePtr  m_pTex;
-               std::string  m_pRelPdfPath;
-               std::string  m_pPdfPath;
+           avg::UTF8String  m_pRelPdfPath;
+           avg::UTF8String  m_pPdfPath;
                  BitmapPtr  m_pBitmap;
                   IntPoint  m_pNodeSize;
                       bool  m_bRenderAnnotations;
