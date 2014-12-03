@@ -144,16 +144,16 @@ class PdfNode(DivNodePlus):
             return
         self.__rendered = True
 
-        print "    PdfNode::__render()"
+        #print "    PdfNode::__render()"
         self.__setupPage(0)
         self.__fitSize(self.size)
 
     def __rerender(self):
-        print "    PdfNode::__rerender()"
+        #print "    PdfNode::__rerender()"
         self.__popplerNode.rerender()
 
     def __fitSize(self, size):
-        print "    PdfNode::__fitSize({0})".format(size)
+        #print "    PdfNode::__fitSize({0})".format(size)
 
         if self.__backNode != None:
             self.__backNode.size = size
@@ -167,7 +167,7 @@ class PdfNode(DivNodePlus):
         self.__popplerNode.size = size 
 
     def __setupPage(self, page_index = -1):
-        print "    PdfNode::__setupPage({0})".format(page_index)
+        #print "    PdfNode::__setupPage({0})".format(page_index)
 
         if 0 <= page_index and page_index < self.__popplerNode.getPageCount():
 
@@ -204,7 +204,7 @@ class PdfNode(DivNodePlus):
 
     def __getAnnotsNode(self, page_index = -1):
         # rendering from annotNode or looking up in self._
-        print "    PdfNode::__getAnnotsNode({0})".format(page_index)
+        #print "    PdfNode::__getAnnotsNode({0})".format(page_index)
         if page_index in self.__annotNodes.keys():
             annotNode = self.__annotNodes[page_index]
             return annotNode
@@ -228,7 +228,7 @@ class PdfNode(DivNodePlus):
         annotNode.size = self.__popplerNode.getPageSize(page_index)
         cp = self.currentPage
 
-        print "    PdfNode::__renderAnnots()"
+        #print "    PdfNode::__renderAnnots()"
         for annotation in self.__popplerNode.getPageAnnotations(cp):
             area = annotation.area
             box  = annotation.box
@@ -259,7 +259,7 @@ class PdfNode(DivNodePlus):
 
 
             annotNode.appendChild(annot)
-            print box.payload
+            #print box.payload
             #print "\nappending annotation ( " + str(rect.size) + " ) -> " + str( annot.size )
 
         return annotNode
@@ -269,8 +269,8 @@ class PdfNode(DivNodePlus):
 
         mappings = self.__popplerNode.getPageImageFrames(page_index)
         for box in mappings:
-            print
-            print "printing image frame", box, self.scale
+            #print
+            #print "printing image frame", box, self.scale
             libavg.RectNode(
                 pos = libavg.Point2D( box.x, box.y)*self.scale,
                 size = libavg.Point2D( box.width, -box.height )*self.scale,
@@ -282,7 +282,7 @@ class PdfNode(DivNodePlus):
 
 
     def __renderLayouts(self,page_index):
-        print  "    PdfNode::__renderLayouts({0}) # size = {1}".format(page_index, self.size)
+        #print  "    PdfNode::__renderLayouts({0}) # size = {1}".format(page_index, self.size)
         #print "       {0}".format( self.__popplerNode.getPageSize(page_index))
         layoutsNode = DivNodePlus() # way too damn slow
         layoutsNode.size = self.__popplerNode.getPageSize(page_index)

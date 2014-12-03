@@ -11,7 +11,6 @@ char popplerNodeName[] = "popplernode";
 
 BOOST_PYTHON_MODULE(popplerplugin) {
   
-  // TODO translate PopplerRectangle into libavg pendant
   class_<PopplerRectangle>("PopplerRectangle")
     .add_property("x1", &PopplerRectangle::x1).add_property("x2", &PopplerRectangle::x2)
     .add_property("y1", &PopplerRectangle::y1).add_property("y2", &PopplerRectangle::y2);
@@ -71,6 +70,7 @@ BOOST_PYTHON_MODULE(popplerplugin) {
 
 AVG_PLUGIN_API PyObject* registerPlugin() {
 #if PY_MAJOR_VERSION < 3
+    // TODO TEST WITH PYTHON3
     initpopplerplugin();
     PyObject* pyPopplerModule = PyImport_ImportModule("popplerplugin");
 #else

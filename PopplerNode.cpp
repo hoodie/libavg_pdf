@@ -199,7 +199,7 @@ getPageAnnotations(page_index_t index) const
     PopplerAnnotType type = poppler_annot_get_annot_type(pannot);
     if( poppler_annot_get_annot_type(pannot) != POPPLER_ANNOT_HIGHLIGHT and
         poppler_annot_get_annot_type(pannot) != POPPLER_ANNOT_UNDERLINE) {
-      cout << plprfx << "Annotation: " << annottypenames[type] << " is not supported" << endl;
+      //cout << plprfx << "Annotation: " << annottypenames[type] << " is not supported" << endl;
       continue; // some annotations just want to watch the world burn
     }
     
