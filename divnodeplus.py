@@ -17,7 +17,7 @@ class DivNodePlus(DivNode):
         return [self.getChild(i) for i in xrange(self.getNumChildren())]
 
     def children_each(self, block):
-        for child in self.children():
+        for child in self.children:
             block.__call__(child)
 
     def resizeChildren(self, new_size):
