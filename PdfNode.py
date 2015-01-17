@@ -428,7 +428,7 @@ class PdfNode(DivNodePlus):
     def __renderHighlightBox(self, box_index ):
             box = self.__layoutLists[self.currentPage][box_index]
             return libavg.RectNode(
-                    fillcolor = self.HIGHLIGHT_COLOR, fillopacity = 1, opacity = 0,
+                    fillcolor = self.HIGHLIGHT_COLOR, fillopacity = .7, opacity = 0,
                     size = libavg.Point2D(box.width, box.height)*self.scale,
                     pos  = libavg.Point2D(box.x, box.y)*self.scale,
                     parent = self.__highlightNode)
