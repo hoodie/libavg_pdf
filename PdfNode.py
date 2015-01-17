@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, time, math, cairo
+import os, sys, time, math, cairo
 import libavg
 
 from libavg  import gesture, DivNode, Publisher, avg
@@ -22,6 +22,8 @@ class PdfNode(DivNodePlus):
     # TODO: copy DivNodePlus functionality over to PdfNode to remove dependency for later extraction
 
     def __init__(self, path = None, show_annotations = True, parent=None, *args, **kwargs):
+        print self.__class__.__name__ +"::"+ sys._getframe().f_code.co_name+"(path="+ path+ ")"
+        print "{cname}::{fname}({args})".format(cname= self.__class__.__name__ , fname= sys._getframe().f_code.co_name, args=args)
         super(PdfNode,self).__init__(*args, **kwargs)
         self.registerInstance(self, parent)
         self.publish(self.HIGHLIGHTING_STARTED)
@@ -41,6 +43,7 @@ class PdfNode(DivNodePlus):
 
         self.__show_Back     = True
         self.__show_Layout   = False # debug only
+        self.__show_Frames   = False
         self.__show_Annots   = show_annotations
         self.__show_Poppler  = False
 
@@ -192,7 +195,7 @@ class PdfNode(DivNodePlus):
                 self.__layoutsNode  = self.__renderLayouts(page_index)
                 self.appendChild(self.__layoutsNode)
 
-            if True:
+            if self.__show_Frames:
                 if self.__framesNode != None:
                     self.removeChild(self.__framesNode)
                 self.__framesNode = self.__renderImageFrames(page_index)
@@ -275,7 +278,7 @@ class PdfNode(DivNodePlus):
                 pos = libavg.Point2D( box.x, box.y)*self.scale,
                 size = libavg.Point2D( box.width, -box.height )*self.scale,
                 color = "ff0000", opacity = 1,
-                fillcolor = "FF55FF", fillopacity = 1,
+                fillcolor = "FFFF00", fillopacity = 1,
                 parent = framesNode) 
 
         return framesNode
