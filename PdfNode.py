@@ -81,7 +81,7 @@ class PdfNode(DivNodePlus):
     def currentPage(self):
         page = self.__popplerNode.getCurrentPage();
         return page
-    
+
     def setHighlightColor(self, color):
         self.HIGHLIGHT_COLOR = color
 
@@ -167,7 +167,7 @@ class PdfNode(DivNodePlus):
         if self.__annotsNode != None:
             self.__annotsNode.size  = size
 
-        self.__popplerNode.size = size 
+        self.__popplerNode.size = size
 
     def __setupPage(self, page_index = -1):
         #print "    PdfNode::__setupPage({0})".format(page_index)
@@ -279,7 +279,7 @@ class PdfNode(DivNodePlus):
                 size = libavg.Point2D( box.width, -box.height )*self.scale,
                 color = "ff0000", opacity = 1,
                 fillcolor = "FFFF00", fillopacity = 1,
-                parent = framesNode) 
+                parent = framesNode)
 
         return framesNode
 
@@ -399,7 +399,7 @@ class PdfNode(DivNodePlus):
                     self.__highlight_first = i
                 self.__highlight_last = i
                 self.__renderHighlightBoxes()
-                
+
 
     def __renderHighlightBoxes(self):
         start = min(self.__highlight_first, self.__highlight_last)
@@ -412,7 +412,7 @@ class PdfNode(DivNodePlus):
                 #print "adding box", i
                 box = self.__renderHighlightBox(i)
                 self.__highlightedBoxes[i] = box
-        
+
         # remove out of range boxes ( e.g. if going backwards )
         for i, box in self.__highlightedBoxes.iteritems():
             if (i < start or end < i) and i in self.__highlightedBoxes.keys():
