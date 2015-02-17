@@ -22,8 +22,8 @@ class PdfNode(DivNodePlus):
     # TODO: copy DivNodePlus functionality over to PdfNode to remove dependency for later extraction
 
     def __init__(self, path = None, show_annotations = True, parent=None, *args, **kwargs):
-        print self.__class__.__name__ +"::"+ sys._getframe().f_code.co_name+"(path="+ path+ ")"
-        print "{cname}::{fname}({args})".format(cname= self.__class__.__name__ , fname= sys._getframe().f_code.co_name, args=args)
+        #print self.__class__.__name__ +"::"+ sys._getframe().f_code.co_name+"(path="+ path+ ")"
+        #print "{cname}::{fname}({args})".format(cname= self.__class__.__name__ , fname= sys._getframe().f_code.co_name, args=args)
         super(PdfNode,self).__init__(*args, **kwargs)
         self.registerInstance(self, parent)
         self.publish(self.HIGHLIGHTING_STARTED)
@@ -59,7 +59,7 @@ class PdfNode(DivNodePlus):
             self.appendChild(self.__popplerNode)
 
         else:
-            print "path {0} does not exist".format(path)
+            pass #print "path {0} does not exist".format(path)
 
         self.__layoutLists   = [self.__popplerNode.getPageLayout(i) for i in range(self.pageCount)]
 
