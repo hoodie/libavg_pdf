@@ -1,6 +1,6 @@
-# libavg PopplerNode Plugin
+# libavg Poppler Plugin
 
-Render PDF documents in libavg.
+Renders PDF documents in libavg.
 It loads the entire document,
 manages pages,
 caches rendered pages and 
@@ -51,12 +51,6 @@ popplerNode.rerender() # this will drop the cache of rendered pages
 
 ## TODO ( not yet implemented functionality )
 
--   higher level wrapper written in python
-*   background psetCurrentPageing of pages 
 -   modifing pdf, including:
 
     -   adding annotations
-
-## warning
-
-if this documentation turns out to be out of date, take a look at `test_plugin.py` which is basically a little test implementation
