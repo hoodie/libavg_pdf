@@ -114,7 +114,7 @@ class PdfNode(DivNodePlus):
         return self.__popplerNode.getPageImage(page_index, image_index)
 
     def getPageImageNode(self, page_index = 0, image_index = 0):
-        imageNode = libavg.ImageNode()
+        imageNode = libavg.ImageNode(mipmap=True)
         imageNode.setBitmap( self.getPageImage(page_index, image_index) )
         return imageNode
 
