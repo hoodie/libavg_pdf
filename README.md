@@ -12,8 +12,10 @@ reads annotations and page layout.
 -   libavg >= 1.8.2
 
 
-## Example:
+## Example: 
 
+Warnung! These examples are slightly dated.
+Checkout plugin.h and PdfNode.py for api.
 
 ```python
 libavg.player.loadPlugin("popplerplugin")
